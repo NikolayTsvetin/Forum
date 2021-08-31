@@ -25,10 +25,29 @@ export class CreatePost extends Component {
         }
     }
 
-    handleSubmit(event) {
-        debugger;
-        alert('An essay was submitted: ' + this.state.value);
+    async handleSubmit(event) {
         event.preventDefault();
+
+        try {
+            const post = { title: this.state.title, content: this.state.content };
+            const response = await fetch('Posts/CreatePost', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(post)
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                this.props.history.push('/posts');
+            } else {
+                throw 'Ooops... Your post creation has failed. Please, try again.'
+            }
+        } catch (e) {
+            throw e;
+        }
     }
 
     render() {

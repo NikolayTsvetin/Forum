@@ -24,5 +24,22 @@ namespace Forum.Controllers
 
             return posts;
         }
+
+        [HttpPost]
+        public async Task<object> CreatePost([FromBody] Post post)
+        {
+            if (ModelState.IsValid)
+            {
+                post.DateCreated = DateTime.Now;
+                post.Id = Guid.NewGuid();
+
+                await context.AddAsync(post);
+                await context.SaveChangesAsync();
+
+                return Json(new { success = true });
+            }
+
+            return Json(new { success = false });
+        }
     }
 }

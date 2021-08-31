@@ -9,8 +9,6 @@ export class Posts extends Component {
             loaded: false,
             posts: null
         }
-
-        this.onCreatePost = this.onCreatePost.bind(this);
     }
 
     componentDidMount() {
@@ -18,10 +16,14 @@ export class Posts extends Component {
     }
 
     async getAllPosts() {
-        const response = await fetch('Posts/GetPosts');
-        const data = await response.json();
+        try {
+            const response = await fetch('Posts/GetPosts');
+            const data = await response.json();
 
-        this.setState({ loaded: true, posts: data });
+            this.setState({ loaded: true, posts: data });
+        } catch (e) {
+            throw e;
+        }
     }
 
     showPosts = (posts) => {
