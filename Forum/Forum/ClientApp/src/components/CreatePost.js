@@ -12,7 +12,7 @@ export class CreatePost extends Component {
         this.handleSubmit = this.handleSubmit.bind(this);
     }
 
-    handleChange(event) {
+    handleChange = (event) => {
         const target = event.target.name;
         const value = event.target.value;
 
@@ -25,7 +25,7 @@ export class CreatePost extends Component {
         }
     }
 
-    async handleSubmit(event) {
+    handleSubmit = async (event) => {
         event.preventDefault();
 
         try {
@@ -50,7 +50,7 @@ export class CreatePost extends Component {
         }
     }
 
-    render() {
+    render = () => {
         return (
             <form onSubmit={this.handleSubmit}>
                 <div className="mb-3">

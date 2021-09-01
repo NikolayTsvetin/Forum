@@ -11,11 +11,11 @@ export class Posts extends Component {
         }
     }
 
-    componentDidMount() {
+    componentDidMount = () => {
         this.getAllPosts();
     }
 
-    async getAllPosts() {
+    getAllPosts = async () => {
         try {
             const response = await fetch('Posts/GetPosts');
             const data = await response.json();
@@ -26,21 +26,31 @@ export class Posts extends Component {
         }
     }
 
+    trimContent = (content) => {
+        const maximumVisibleLength = 20;
+
+        if (content.length > maximumVisibleLength) {
+            return `${content.slice(0, 17)}...`;
+        }
+
+        return content;
+    }
+
     showPosts = (posts) => {
         if (!posts || posts.length === 0) {
             return '';
         }
 
         const elements = posts.map(x => {
-            return (<div className="col-md-4" key={x.id}>
+            return (<div className="col-md-4 postHolder" key={x.id}>
                 <div className="card mb-4 box-shadow">
-                    <h4>{x.title}</h4>
+                    <h4 className="text-center">{x.title}</h4>
                 </div>
                 <div className="card-body">
-                    <p className="card-text">{x.content}</p>
-                    <p>Posted on: {new Date(x.dateCreated).toLocaleString()}</p>
+                    <p className="card-text text-center">{this.trimContent(x.content)}</p>
+                    <p className="text-center">Posted on: {new Date(x.dateCreated).toLocaleString()}</p>
                 </div>
-                <div className="btn-group">
+                <div className="btn-group buttonsHolder">
                     <button className="btn btn-sm btn-outline-secondary">View</button>
                     <button className="btn btn-sm btn-outline-secondary">Edit</button>
                 </div>
@@ -50,7 +60,7 @@ export class Posts extends Component {
         return elements;
     }
 
-    render() {
+    render = () => {
         const content = this.state.loaded ? this.showPosts(this.state.posts) : 'Retrieving all posts...';
 
         return (<div>
