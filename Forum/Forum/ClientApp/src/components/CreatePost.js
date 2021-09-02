@@ -52,19 +52,21 @@ export class CreatePost extends Component {
 
     render = () => {
         return (
-            <form onSubmit={this.handleSubmit}>
-                <div className="mb-3">
-                    <label className="form-label">Title:
+            <div className="text-center pagination-centered">
+                <form onSubmit={this.handleSubmit}>
+                    <div className="mb-3">
+                        <label className="form-label">Title:
                     <input className="form-control" name="title" type="text" onChange={this.handleChange} />
-                    </label>
-                </div>
-                <div className="mb-3">
-                    <label className="form-label">Content:
+                        </label>
+                    </div>
+                    <div className="mb-3">
+                        <label className="form-label">Content:
                     <textarea className="form-control" name="content" onChange={this.handleChange} />
-                    </label>
-                </div>
-                <input className="btn btn-primary" type="submit" value="Submit" />
-            </form>
+                        </label>
+                    </div>
+                    <input className="btn btn-primary" type="submit" value="Submit" />
+                </form>
+            </div>
         );
     }
 }

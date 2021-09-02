@@ -1,5 +1,20 @@
 ﻿import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
+import Modal from 'react-modal';
+
+// holy shit. expert level css?. long live stackoverflow
+const customStyles = {
+    content: {
+        top: '50%',
+        left: '50%',
+        right: 'auto',
+        bottom: 'auto',
+        marginRight: '-50%',
+        transform: 'translate(-50%, -50%)'
+    }
+};
+
+Modal.setAppElement(document.getElementById('root'));
 
 export class Posts extends Component {
     constructor(props) {
@@ -7,8 +22,25 @@ export class Posts extends Component {
 
         this.state = {
             loaded: false,
-            posts: null
+            posts: null,
+            modalIsOpen: false
         }
+
+        this.openModal = this.openModal.bind(this);
+        this.closeModal = this.closeModal.bind(this);
+        this.saveModal = this.saveModal.bind(this);
+    }
+
+    openModal = () => {
+        this.setState({ modalIsOpen: true });
+    }
+
+    closeModal = () => {
+        this.setState({ modalIsOpen: false });
+    }
+
+    saveModal = (x, y, z) => {
+        debugger;
     }
 
     componentDidMount = () => {
@@ -69,6 +101,29 @@ export class Posts extends Component {
                     <h1 className="jumbotron-heading">All posts</h1>
                     <p className="lead text-muted">Below you can see all available posts. Check if something is interesting for you, or post your own topic!</p>
                     <p><Link className="btn btn-primary my-2" to="/create-post">Create post</Link></p>
+                    <p><button className="btn btn-primary my-2" onClick={this.openModal}>Create post (POP UP)</button></p>
+                    <Modal
+                        isOpen={this.state.modalIsOpen}
+                        onRequestClose={this.closeModal}
+                        style={customStyles}
+                        contentLabel="Create new"
+                    >
+                        <h2>Create new post</h2>
+                        <form>
+                            <div className="mb-3">
+                                <label className="form-label">Title:
+                                    <input className="form-control" name="title" type="text" onChange={this.handleChange} />
+                                </label>
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label">Content:
+                                    <textarea className="form-control" name="content" onChange={this.handleChange} />
+                                </label>
+                            </div>
+                            <button className="btn btn-primary" onClick={this.closeModal}>Close</button>
+                            <button className="btn btn-primary" onClick={this.saveModal}>Create</button>
+                        </form>
+                    </Modal>
                 </div>
             </section>
             <div className="album py-5 bg-light">
