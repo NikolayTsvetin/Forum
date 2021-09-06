@@ -1,5 +1,4 @@
 ﻿import React, { Component } from 'react';
-import { Link } from 'react-router-dom';
 import Modal from 'react-modal';
 
 // holy shit. expert level css?. long live stackoverflow
@@ -23,12 +22,17 @@ export class Posts extends Component {
         this.state = {
             loaded: false,
             posts: null,
-            modalIsOpen: false
+            modalIsOpen: false,
+            title: '',
+            content: ''
         }
 
         this.openModal = this.openModal.bind(this);
         this.closeModal = this.closeModal.bind(this);
         this.saveModal = this.saveModal.bind(this);
+        this.handleChange = this.handleChange.bind(this);
+        this.deletePost = this.deletePost.bind(this);
+
     }
 
     openModal = () => {
@@ -39,8 +43,64 @@ export class Posts extends Component {
         this.setState({ modalIsOpen: false });
     }
 
-    saveModal = (x, y, z) => {
-        debugger;
+    saveModal = async (event) => {
+        event.preventDefault();
+
+        try {
+            const post = { title: this.state.title, content: this.state.content };
+            const response = await fetch('Posts/CreatePost', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(post)
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                this.closeModal();
+                await this.getAllPosts();
+            } else {
+                throw 'Ooops... Your post creation has failed. Please, try again.'
+            }
+        } catch (e) {
+            throw e;
+        }
+    }
+
+    handleChange = (event) => {
+        const target = event.target.name;
+        const value = event.target.value;
+
+        if (target === 'title') {
+            this.setState({ title: value });
+        } else if (target === 'content') {
+            this.setState({ content: value });
+        } else {
+            throw `There is no info in state for ${target}`;
+        }
+    }
+
+    deletePost = async (id) => {
+        try {
+            const response = await fetch('Posts/DeletePost', {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(id)
+            });
+            const data = await response.json();
+
+            if (data.success) {
+                await this.getAllPosts();
+            } else {
+                throw `There is no post with id: ${id}. Error message: ${data.error}`;
+            }
+        } catch (e) {
+            throw e;
+        }
     }
 
     componentDidMount = () => {
@@ -86,6 +146,9 @@ export class Posts extends Component {
                     <button className="btn btn-sm btn-outline-secondary">View</button>
                     <button className="btn btn-sm btn-outline-secondary">Edit</button>
                 </div>
+                <div className="btn-group buttonsHolder">
+                    <button className="btn btn-sm btn-outline-secondary" style={{ marginTop: '5px' }} onClick={() => this.deletePost(x.id)}>Delete</button>
+                </div>
             </div>);
         });
 
@@ -100,8 +163,7 @@ export class Posts extends Component {
                 <div className="container">
                     <h1 className="jumbotron-heading">All posts</h1>
                     <p className="lead text-muted">Below you can see all available posts. Check if something is interesting for you, or post your own topic!</p>
-                    <p><Link className="btn btn-primary my-2" to="/create-post">Create post</Link></p>
-                    <p><button className="btn btn-primary my-2" onClick={this.openModal}>Create post (POP UP)</button></p>
+                    <p><button className="btn btn-primary my-2" onClick={this.openModal}>Create post</button></p>
                     <Modal
                         isOpen={this.state.modalIsOpen}
                         onRequestClose={this.closeModal}
@@ -120,8 +182,8 @@ export class Posts extends Component {
                                     <textarea className="form-control" name="content" onChange={this.handleChange} />
                                 </label>
                             </div>
-                            <button className="btn btn-primary" onClick={this.closeModal}>Close</button>
-                            <button className="btn btn-primary" onClick={this.saveModal}>Create</button>
+                            <button className="btn btn-primary" style={{ float: 'left' }} onClick={this.closeModal}>Close</button>
+                            <button className="btn btn-primary" style={{ float: 'right' }} onClick={this.saveModal}>Create</button>
                         </form>
                     </Modal>
                 </div>

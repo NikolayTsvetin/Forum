@@ -41,5 +41,25 @@ namespace Forum.Controllers
 
             return Json(new { success = false });
         }
+
+        [HttpDelete]
+        public async Task<JsonResult> DeletePost([FromBody] string id)
+        {
+            Guid.TryParse(id, out Guid key);
+
+            try
+            {
+                Post post = await context.Posts.FindAsync(key);
+                context.Posts.Remove(post);
+             
+                await context.SaveChangesAsync();
+
+                return Json(new { success = true });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { success = false, error = ex.Message });
+            }
+        }
     }
 }

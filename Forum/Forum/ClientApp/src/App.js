@@ -3,7 +3,6 @@ import { Route } from 'react-router';
 import { Layout } from './components/Layout';
 import { Home } from './components/Home';
 import { Posts } from './components/Posts';
-import { CreatePost } from './components/CreatePost';
 
 import './custom.css'
 
@@ -15,7 +14,6 @@ export default class App extends Component {
             <Layout>
                 <Route exact path='/' component={Home} />
                 <Route path='/posts' component={Posts} />
-                <Route path='/create-post' component={CreatePost} />
             </Layout>
         );
     }
