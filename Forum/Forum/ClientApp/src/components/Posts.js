@@ -103,6 +103,27 @@ export class Posts extends Component {
         }
     }
 
+    viewPost = async (id) => {
+        const response = await fetch('Posts/GetPostInformation', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(id)
+        });
+
+        const data = await response.json();
+
+        if (data.post) {
+            this.props.history.push({
+                pathname: '/viewPost',
+                state: { post: data.post}
+            });
+        } else {
+            throw data.error;
+        }
+    }
+
     componentDidMount = () => {
         this.getAllPosts();
     }
@@ -143,7 +164,7 @@ export class Posts extends Component {
                     <p className="text-center">Posted on: {new Date(x.dateCreated).toLocaleString()}</p>
                 </div>
                 <div className="btn-group buttonsHolder">
-                    <button className="btn btn-sm btn-outline-secondary">View</button>
+                    <button className="btn btn-sm btn-outline-secondary" onClick={() => this.viewPost(x.id)}>View</button>
                     <button className="btn btn-sm btn-outline-secondary">Edit</button>
                 </div>
                 <div className="btn-group buttonsHolder">

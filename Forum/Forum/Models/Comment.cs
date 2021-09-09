@@ -16,5 +16,7 @@ namespace Forum.Models
         [Required]
         [StringLength(300, ErrorMessage = "Post comment cannot be more than 300 symbols.")]
         public string Content { get; set; }
+
+        public Guid PostId { get; set; }
     }
 }

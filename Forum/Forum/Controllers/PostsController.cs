@@ -61,5 +61,32 @@ namespace Forum.Controllers
                 return Json(new { success = false, error = ex.Message });
             }
         }
+
+        [HttpPost]
+        public async Task<JsonResult> GetPostInformation([FromBody] string id)
+        {
+            Guid.TryParse(id, out Guid key);
+
+            try
+            {
+                Post post = await context.Posts.FindAsync(key);
+
+                if (post == null)
+                {
+                    return Json(new { error = $"There wasn't post with id: ${id}" });
+                }
+
+                List<Comment> comments = await context.Comments.ToListAsync();
+                IEnumerable<Comment> commentsForPost = comments.Where(x => x.PostId == post.Id);
+
+                post.Comments = commentsForPost;
+
+                return Json(new { post = post });
+            }
+            catch (Exception ex)
+            {
+                return Json(new { error = $"There is error: ${ex.Message}" });
+            }
+        }
     }
 }
