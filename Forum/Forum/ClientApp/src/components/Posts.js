@@ -24,7 +24,8 @@ export class Posts extends Component {
             posts: null,
             modalIsOpen: false,
             title: '',
-            content: ''
+            content: '',
+            updateId: ''
         }
 
         this.openModal = this.openModal.bind(this);
@@ -32,6 +33,8 @@ export class Posts extends Component {
         this.saveModal = this.saveModal.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.deletePost = this.deletePost.bind(this);
+        this.editPost = this.editPost.bind(this);
+        this.saveEditedModal = this.saveEditedModal.bind(this);
 
     }
 
@@ -124,6 +127,37 @@ export class Posts extends Component {
         }
     }
 
+    editPost = (post) => {
+        this.setState({ title: post.title, content: post.content, updateId: post.id });
+        this.openModal();
+    }
+
+    saveEditedModal = async (event) => {
+        event.preventDefault();
+
+        try {
+            const post = { title: this.state.title, content: this.state.content, id: this.state.updateId };
+            const response = await fetch('Posts/UpdatePost', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(post)
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                this.closeModal();
+                await this.getAllPosts();
+            } else {
+                throw 'Ooops... Your post creation has failed. Please, try again.'
+            }
+        } catch (e) {
+            throw e;
+        }
+    }
+
     componentDidMount = () => {
         this.getAllPosts();
     }
@@ -165,7 +199,7 @@ export class Posts extends Component {
                 </div>
                 <div className="btn-group buttonsHolder">
                     <button className="btn btn-sm btn-outline-secondary" onClick={() => this.viewPost(x.id)}>View</button>
-                    <button className="btn btn-sm btn-outline-secondary">Edit</button>
+                    <button className="btn btn-sm btn-outline-secondary" onClick={() => this.editPost(x)}>Edit</button>
                 </div>
                 <div className="btn-group buttonsHolder">
                     <button className="btn btn-sm btn-outline-secondary" style={{ marginTop: '5px' }} onClick={() => this.deletePost(x.id)}>Delete</button>
@@ -205,6 +239,27 @@ export class Posts extends Component {
                             </div>
                             <button className="btn btn-primary" style={{ float: 'left' }} onClick={this.closeModal}>Close</button>
                             <button className="btn btn-primary" style={{ float: 'right' }} onClick={this.saveModal}>Create</button>
+                        </form>
+                    </Modal>
+                    <Modal
+                        isOpen={this.state.modalIsOpen}
+                        onRequestClose={this.closeModal}
+                        style={customStyles}
+                        contentLabel="Edit post">
+                        <h2>Edit post</h2>
+                        <form>
+                            <div className="mb-3">
+                                <label className="form-label">Title:
+                                    <input className="form-control" name="title" type="text" value={this.state.title} onChange={this.handleChange} />
+                                </label>
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label">Content:
+                                    <textarea className="form-control" name="content" value={this.state.content} onChange={this.handleChange} />
+                                </label>
+                            </div>
+                            <button className="btn btn-primary" style={{ float: 'left' }} onClick={this.closeModal}>Close</button>
+                            <button className="btn btn-primary" style={{ float: 'right' }} onClick={this.saveEditedModal}>Save</button>
                         </form>
                     </Modal>
                 </div>

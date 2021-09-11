@@ -42,6 +42,24 @@ namespace Forum.Controllers
             return Json(new { success = false });
         }
 
+        [HttpPost]
+        public async Task<object> UpdatePost([FromBody] Post post)
+        {
+            if (ModelState.IsValid)
+            {
+                Post foundPost = await context.Posts.FindAsync(post.Id);
+                foundPost.Title = post.Title;
+                foundPost.Content = post.Content;
+
+                context.Posts.Update(foundPost);
+                await context.SaveChangesAsync();
+
+                return Json(new { success = true });
+            }
+
+            return Json(new { success = false });
+        }
+
         [HttpDelete]
         public async Task<JsonResult> DeletePost([FromBody] string id)
         {
