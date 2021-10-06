@@ -21,5 +21,7 @@ namespace Forum.Models
         public DateTime DateCreated { get; set; }
 
         public IEnumerable<Comment> Comments { get; set; }
+
+        public string ApplicationUserId { get; set; }
     }
 }

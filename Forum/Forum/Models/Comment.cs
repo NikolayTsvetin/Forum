@@ -18,5 +18,7 @@ namespace Forum.Models
         public string Content { get; set; }
 
         public Guid PostId { get; set; }
+
+        public string ApplicationUserId { get; set; }
     }
 }

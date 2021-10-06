@@ -11,7 +11,8 @@ export class NavMenu extends Component {
 
         this.toggleNavbar = this.toggleNavbar.bind(this);
         this.state = {
-            collapsed: true
+            collapsed: true,
+            isUserLoggedIn: false
         };
     }
 
@@ -21,7 +22,55 @@ export class NavMenu extends Component {
         });
     }
 
+    componentDidMount = async () => {
+        await this.isUserLoggedIn();
+    }
+
+    isUserLoggedIn = async () => {
+        try {
+            const response = await fetch('User/IsUserLoggedIn');
+            const isUserLoggedIn = await response.json();
+
+            this.setState({ isUserLoggedIn: isUserLoggedIn });
+        } catch (e) {
+            throw e;
+        }
+    }
+
+    toggleAuthenticationButtons = () => {
+        if (this.state.isUserLoggedIn) {
+            const logoutButton = document.getElementById('logoutButton');
+
+            if (logoutButton) {
+                logoutButton.style.display = 'inline';
+            }
+        } else {
+            const loginButton = document.getElementById('loginButton');
+            const registerButton = document.getElementById('registerButton');
+
+            if (loginButton && registerButton) {
+                loginButton.style.display = 'inline';
+                registerButton.style.display = 'inline'
+            }
+        }
+    }
+
+    onLogout = async (event) => {
+        event.preventDefault();
+
+        await fetch('User/Logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+
+        this.toggleAuthenticationButtons();
+    }
+
     render() {
+        this.toggleAuthenticationButtons();
+
         return (
             <header>
                 <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" light>
@@ -35,6 +84,15 @@ export class NavMenu extends Component {
                                 </NavItem>
                                 <NavItem>
                                     <NavLink tag={Link} className="text-dark" to="/posts">Posts</NavLink>
+                                </NavItem>
+                                <NavItem style={{ display: 'none' }} id="logoutButton">
+                                    <NavLink tag={Link} className="text-dark" to="#" onClick={this.onLogout}>Logout</NavLink>
+                                </NavItem>
+                                <NavItem style={{ display: 'none' }} id="loginButton">
+                                    <NavLink tag={Link} className="text-dark" to="/login">Login</NavLink>
+                                </NavItem>
+                                <NavItem style={{ display: 'none' }} id="registerButton">
+                                    <NavLink tag={Link} className="text-dark" to="/register">Register</NavLink>
                                 </NavItem>
                             </ul>
                         </Collapse>

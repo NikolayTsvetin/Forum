@@ -26,7 +26,7 @@ namespace Forum.Controllers
         }
 
         [HttpPost]
-        public async Task<object> CreatePost([FromBody] Post post)
+        public async Task<JsonResult> CreatePost([FromBody] Post post)
         {
             if (ModelState.IsValid)
             {
@@ -36,14 +36,14 @@ namespace Forum.Controllers
                 await context.AddAsync(post);
                 await context.SaveChangesAsync();
 
-                return Json(new { success = true });
+                return new JsonResult(new { success = true });
             }
 
-            return Json(new { success = false });
+            return new JsonResult(new { success = false });
         }
 
         [HttpPost]
-        public async Task<object> UpdatePost([FromBody] Post post)
+        public async Task<JsonResult> UpdatePost([FromBody] Post post)
         {
             if (ModelState.IsValid)
             {
@@ -54,10 +54,10 @@ namespace Forum.Controllers
                 context.Posts.Update(foundPost);
                 await context.SaveChangesAsync();
 
-                return Json(new { success = true });
+                return new JsonResult(new { success = true });
             }
 
-            return Json(new { success = false });
+            return new JsonResult(new { success = false });
         }
 
         [HttpDelete]
@@ -72,11 +72,11 @@ namespace Forum.Controllers
              
                 await context.SaveChangesAsync();
 
-                return Json(new { success = true });
+                return new JsonResult(new { success = true });
             }
             catch (Exception ex)
             {
-                return Json(new { success = false, error = ex.Message });
+                return new JsonResult(new { success = false, error = ex.Message });
             }
         }
 
@@ -99,11 +99,11 @@ namespace Forum.Controllers
 
                 post.Comments = commentsForPost;
 
-                return Json(new { post = post });
+                return new JsonResult(new { post = post });
             }
             catch (Exception ex)
             {
-                return Json(new { error = $"There is error: ${ex.Message}" });
+                return new JsonResult(new { error = $"There is error: ${ex.Message}" });
             }
         }
     }

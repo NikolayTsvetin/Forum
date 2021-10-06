@@ -67,7 +67,7 @@ export class ViewPost extends Component {
             <h1>{post.title}</h1>
             <div>
                 <p>{post.content}</p>
-                <p>{new Date(post.dateCreated).toLocaleString()}</p>
+                <p>Created on: {new Date(post.dateCreated).toLocaleString()}</p>
             </div>
         </div>);
     }
