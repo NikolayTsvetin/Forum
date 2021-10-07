@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 import { Collapse, Container, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'reactstrap';
 import { Link } from 'react-router-dom';
+import { Util } from '../util/Util';
 import './NavMenu.css';
+
 
 export class NavMenu extends Component {
     static displayName = NavMenu.name;
@@ -27,31 +29,16 @@ export class NavMenu extends Component {
     }
 
     isUserLoggedIn = async () => {
-        try {
-            const response = await fetch('User/IsUserLoggedIn');
-            const isUserLoggedIn = await response.json();
+        const isUserLoggedIn = await Util.isUserLoggedIn();
 
-            this.setState({ isUserLoggedIn: isUserLoggedIn });
-        } catch (e) {
-            throw e;
-        }
+        this.setState({ isUserLoggedIn: isUserLoggedIn });
     }
 
     toggleAuthenticationButtons = () => {
         if (this.state.isUserLoggedIn) {
-            const logoutButton = document.getElementById('logoutButton');
-
-            if (logoutButton) {
-                logoutButton.style.display = 'inline';
-            }
+            Util.toggleButtonsForLoggedUser();
         } else {
-            const loginButton = document.getElementById('loginButton');
-            const registerButton = document.getElementById('registerButton');
-
-            if (loginButton && registerButton) {
-                loginButton.style.display = 'inline';
-                registerButton.style.display = 'inline'
-            }
+            Util.toggleButtonsForNotLoggedUser();
         }
     }
 
@@ -68,7 +55,7 @@ export class NavMenu extends Component {
         this.toggleAuthenticationButtons();
     }
 
-    render() {
+    render = () => {
         this.toggleAuthenticationButtons();
 
         return (

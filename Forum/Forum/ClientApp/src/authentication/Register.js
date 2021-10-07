@@ -1,4 +1,5 @@
 ﻿import React, { Component } from 'react';
+import { Util } from '../util/Util';
 
 export class Register extends Component {
     constructor(props) {
@@ -45,14 +46,7 @@ export class Register extends Component {
             const data = await response.json();
 
             if (data.success) {
-                const logoutButton = document.getElementById('logoutButton');
-                logoutButton.style.display = 'inline';
-
-                const loginButton = document.getElementById('loginButton');
-                const registerButton = document.getElementById('registerButton');
-
-                loginButton.style.display = 'none';
-                registerButton.style.display = 'none'
+                Util.toggleButtonsForLoggedUser();
 
                 this.props.history.push({
                     pathname: '/'
