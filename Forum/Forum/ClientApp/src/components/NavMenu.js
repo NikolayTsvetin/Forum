@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import { Collapse, Container, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import { Util } from '../util/Util';
+import { confirmAlert } from 'react-confirm-alert'; // Import
+import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
 import './NavMenu.css';
 
 
@@ -45,14 +47,28 @@ export class NavMenu extends Component {
     onLogout = async (event) => {
         event.preventDefault();
 
-        await fetch('User/Logout', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
+        confirmAlert({
+            title: 'Confirm to logout',
+            message: `Are you sure you want to logout?`,
+            buttons: [{
+                label: 'Yes',
+                onClick: async () => {
+                    await fetch('User/Logout', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
 
-        this.toggleAuthenticationButtons();
+                    this.toggleAuthenticationButtons();
+                }
+            }, {
+                label: 'No',
+                onClick: () => {
+                    return;
+                }
+            }]
+        });
     }
 
     render = () => {
