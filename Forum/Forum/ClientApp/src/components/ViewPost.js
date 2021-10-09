@@ -1,15 +1,18 @@
 ﻿import React, { Component } from 'react';
+import { Util } from '../util/Util';
 
 export class ViewPost extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            post: null
+            post: null,
+            isUserLoggedIn: false
         }
 
         this.addComment = this.addComment.bind(this);
         this.reloadPost = this.reloadPost.bind(this);
+        this.redirectToLogin = this.redirectToLogin.bind(this);
     }
 
     addComment = async () => {
@@ -72,24 +75,40 @@ export class ViewPost extends Component {
         </div>);
     }
 
+    redirectToLogin = () => {
+        debugger;
+    }
+
+    getCommentOptions = () => {
+        if (!this.state.isUserLoggedIn) {
+            return (<div>
+                <p>In order to comment, you have to be <button className="btn btn-info" onClick={this.redirectToLogin}>Logged in</button></p>
+            </div>);
+        } else {
+            return (<div className="input-group">
+                <input className="form-control width100" id="comment" type="text" name="comment" placeholder="Your comment here…" />
+                <span className="input-group-btn">
+                    <button className="btn btn-info" onClick={this.addComment}>Add comment</button>
+                </span>
+            </div>);
+        }
+    }
+
     createCommentsSection = (post) => {
         if (!post) {
             return '';
         }
 
+        const isLoggedInCheck = this.getCommentOptions();
+
         if (!post.comments) {
             return (<div className="container">
                 <p>Currently there are no comments under this post. You can be the first one!</p>
-                <div className="input-group">
-                    <input className="form-control width100" id="comment" type="text" name="comment" placeholder="Your comment here…" />
-                    <span className="input-group-btn">
-                        <button className="btn btn-info" onClick={this.addComment}>Add comment</button>
-                    </span>
-                </div>
+                {isLoggedInCheck}
             </div>);
         } else {
             return (<div className="container">
-                <div className="row">
+                <div>
                     <h3>Comments:</h3>
                 </div>
                 {post.comments.map(x => {
@@ -100,18 +119,15 @@ export class ViewPost extends Component {
                         <p>Created on: {new Date(x.dateCreated).toLocaleString()}</p>
                     </div>);
                 })}
-                <div className="input-group">
-                    <input className="form-control width100" id="comment" type="text" name="comment" placeholder="Your comment here…" />
-                    <span className="input-group-btn">
-                        <button className="btn btn-info" onClick={this.addComment}>Add comment</button>
-                    </span>
-                </div>
+                {isLoggedInCheck}
             </div>);
         }
     }
 
-    componentDidMount = () => {
-        this.setState({ post: this.props.location.state.post });
+    componentDidMount = async () => {
+        const isUserLoggedIn = await Util.isUserLoggedIn();
+
+        this.setState({ post: this.props.location.state.post, isUserLoggedIn: isUserLoggedIn });
     }
 
     render = () => {
