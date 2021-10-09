@@ -1,5 +1,7 @@
 ﻿import React, { Component } from 'react';
 import Modal from 'react-modal';
+import { confirmAlert } from 'react-confirm-alert'; // Import
+import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
 
 // holy shit. expert level css?. long live stackoverflow
 const customStyles = {
@@ -87,26 +89,47 @@ export class Posts extends Component {
 
     deletePost = async (id) => {
         try {
-            const response = await fetch('Posts/DeletePost', {
-                method: 'DELETE',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(id)
-            });
-            const data = await response.json();
+            const postInformation = await this.getPostInformation(id);
 
-            if (data.success) {
-                await this.getAllPosts();
-            } else {
-                throw `There is no post with id: ${id}. Error message: ${data.error}`;
-            }
+            confirmAlert({
+                title: 'Confirm to delete',
+                message: `Are you sure you want to delete this post: ${postInformation.title}?`,
+                buttons: [{
+                    label: 'Yes',
+                    onClick: async () => {
+                        try {
+                            const response = await fetch('Posts/DeletePost', {
+                                method: 'DELETE',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(id)
+                            });
+                            const data = await response.json();
+
+                            if (data.success) {
+                                await this.getAllPosts();
+                            } else {
+                                throw `There is no post with id: ${id}. Error message: ${data.error}`;
+                            }
+                        } catch (e) {
+                            throw e;
+                        }
+                    }
+                }, {
+                    label: 'No',
+                    onClick: () => {
+                        return;
+                    }
+                }]
+            });
         } catch (e) {
             throw e;
         }
+
     }
 
-    viewPost = async (id) => {
+    getPostInformation = async (id) => {
         const response = await fetch('Posts/GetPostInformation', {
             method: 'POST',
             headers: {
@@ -118,12 +141,22 @@ export class Posts extends Component {
         const data = await response.json();
 
         if (data.post) {
-            this.props.history.push({
-                pathname: '/viewPost',
-                state: { post: data.post}
-            });
+            return data.post;
         } else {
             throw data.error;
+        }
+    }
+
+    viewPost = async (id) => {
+        try {
+            const postInfromation = await this.getPostInformation(id);
+
+            this.props.history.push({
+                pathname: '/viewPost',
+                state: { post: postInfromation }
+            });
+        } catch (e) {
+            throw e;
         }
     }
 
