@@ -24,7 +24,8 @@ export class Posts extends Component {
         this.state = {
             loaded: false,
             posts: null,
-            modalIsOpen: false,
+            createModalIsOpen: false,
+            editModalIsOpen: false,
             title: '',
             content: '',
             updateId: ''
@@ -40,12 +41,24 @@ export class Posts extends Component {
 
     }
 
-    openModal = () => {
-        this.setState({ modalIsOpen: true });
+    openModal = (event) => {
+        // If !event is called manually for edit, not event based calling.
+        if (!event) {
+            this.setState({ editModalIsOpen: true });
+        } else {
+            this.setState({ createModalIsOpen: true });
+        }
     }
 
-    closeModal = () => {
-        this.setState({ modalIsOpen: false });
+    closeModal = (event) => {
+        // Two options - 'Create' and 'Edit'
+        const modalType = event.currentTarget.nextElementSibling.innerText;
+
+        if (modalType === 'Create') {
+            this.setState({ createModalIsOpen: false });
+        } else {
+            this.setState({ editModalIsOpen: false });
+        }
     }
 
     saveModal = async (event) => {
@@ -253,7 +266,7 @@ export class Posts extends Component {
                     <p className="lead text-muted">Below you can see all available posts. Check if something is interesting for you, or post your own topic!</p>
                     <p><button className="btn btn-primary my-2" onClick={this.openModal}>Create post</button></p>
                     <Modal
-                        isOpen={this.state.modalIsOpen}
+                        isOpen={this.state.createModalIsOpen}
                         onRequestClose={this.closeModal}
                         style={customStyles}
                         contentLabel="Create new"
@@ -275,7 +288,7 @@ export class Posts extends Component {
                         </form>
                     </Modal>
                     <Modal
-                        isOpen={this.state.modalIsOpen}
+                        isOpen={this.state.editModalIsOpen}
                         onRequestClose={this.closeModal}
                         style={customStyles}
                         contentLabel="Edit post">

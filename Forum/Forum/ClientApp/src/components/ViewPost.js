@@ -13,6 +13,7 @@ export class ViewPost extends Component {
         this.addComment = this.addComment.bind(this);
         this.reloadPost = this.reloadPost.bind(this);
         this.redirectToLogin = this.redirectToLogin.bind(this);
+        this.redirectToRegistration = this.redirectToRegistration.bind(this);
     }
 
     addComment = async () => {
@@ -66,23 +67,32 @@ export class ViewPost extends Component {
             return 'Post info is being generated...';
         }
 
-        return (<div className="container">
-            <h1>{post.title}</h1>
-            <div>
-                <p>{post.content}</p>
-                <p>Created on: {new Date(post.dateCreated).toLocaleString()}</p>
+        return (<section className="jumbotron text-center">
+            <div className="container">
+                <h1 className="jumbotron-heading">{post.title}</h1>
+                <p className="lead text-muted">{post.content}</p>
+                <p className="lead text-muted">Created on: {new Date(post.dateCreated).toLocaleString()}</p>
             </div>
-        </div>);
+        </section>);
     }
 
     redirectToLogin = () => {
-        debugger;
+        this.props.history.push({
+            pathname: '/login'
+        });
+    }
+
+    redirectToRegistration = () => {
+        this.props.history.push({
+            pathname: '/register'
+        });
     }
 
     getCommentOptions = () => {
         if (!this.state.isUserLoggedIn) {
             return (<div>
-                <p>In order to comment, you have to be <button className="btn btn-info" onClick={this.redirectToLogin}>Logged in</button></p>
+                <p>In order to comment, you have to be <button className="btn btn-primary" onClick={this.redirectToLogin}>Logged in</button></p>
+                <p>Don't have registration? <button className="btn btn-primary" onClick={this.redirectToRegistration}>Register now</button></p>
             </div>);
         } else {
             return (<div className="input-group">
@@ -107,19 +117,21 @@ export class ViewPost extends Component {
                 {isLoggedInCheck}
             </div>);
         } else {
-            return (<div className="container">
-                <div>
-                    <h3>Comments:</h3>
+            return (<div className="album py-5 bg-light">
+                <div className="container">
+                    <h3 className="text-center">Comments:</h3>
+                    <div className="row">
+                        {post.comments.map(x => {
+                            return (<div className="col-md-12 postHolder" key={x.id}>
+                                <div className="card-body">
+                                    <p className="card-text">{x.content}</p>
+                                    <p>Created on: {new Date(x.dateCreated).toLocaleString()}</p>
+                                </div>
+                            </div>);
+                        })}
+                        {isLoggedInCheck}
+                    </div>
                 </div>
-                {post.comments.map(x => {
-                    return (<div className="container" key={x.id}>
-                        <div>
-                            <p>{x.content}</p>
-                        </div>
-                        <p>Created on: {new Date(x.dateCreated).toLocaleString()}</p>
-                    </div>);
-                })}
-                {isLoggedInCheck}
             </div>);
         }
     }
