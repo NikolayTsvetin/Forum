@@ -4,6 +4,8 @@ import { Link } from 'react-router-dom';
 import { Util } from '../util/Util';
 import { confirmAlert } from 'react-confirm-alert'; // Import
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
+import alertify from 'alertifyjs';
+import 'alertifyjs/build/css/alertify.css';
 import './NavMenu.css';
 
 
@@ -65,6 +67,8 @@ export class NavMenu extends Component {
             }, {
                 label: 'No',
                 onClick: () => {
+                    debugger;
+                    alertify.alert('Ready!');
                     return;
                 }
             }]

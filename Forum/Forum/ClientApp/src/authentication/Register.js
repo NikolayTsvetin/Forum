@@ -25,11 +25,11 @@ export class Register extends Component {
         };
 
         if (registrationData.password !== registrationData.confirmPassword) {
-            alert('Confirmed password was different from the chosen one.');
+            Util.showError('Confirmed password was different from the chosen one.');
 
             return;
         } else if (registrationData.password.length < 8) {
-            alert('Please, enter password equal to or longer than 8 symbols.');
+            Util.showError('Please, enter password equal to or longer than 8 symbols.');
 
             return;
         }
@@ -52,10 +52,10 @@ export class Register extends Component {
                     pathname: '/'
                 });
             } else {
-                throw 'Ooops... Your registration failed. Please, try again.'
+                Util.showError('Ooops... Your registration failed. Please, try again.');
             }
         } catch (e) {
-            throw e;
+            Util.showError(e);
         }
     }
 
@@ -70,7 +70,7 @@ export class Register extends Component {
         } else if (target === 'confirmPassword') {
             this.setState({ confirmPassword: value });
         } else {
-            throw `There is no info in state for ${target}`;
+            Util.showError(`There is no info in state for ${target}`);
         }
     }
 

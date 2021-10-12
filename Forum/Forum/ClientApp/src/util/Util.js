@@ -1,4 +1,6 @@
 ﻿import React, { Component } from 'react';
+import alertify from 'alertifyjs';
+import 'alertifyjs/build/css/alertify.css';
 
 export class Util extends Component {
     static toggleAuthenticationButtons = async () => {
@@ -51,5 +53,9 @@ export class Util extends Component {
         } catch (e) {
             throw e;
         }
+    }
+
+    static showError = (err) => {
+        alertify.error(err);
     }
 }

@@ -1,5 +1,6 @@
 ﻿import React, { Component } from 'react';
 import Modal from 'react-modal';
+import { Util } from '../util/Util';
 import { confirmAlert } from 'react-confirm-alert'; // Import
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
 
@@ -80,10 +81,10 @@ export class Posts extends Component {
                 this.closeModal();
                 await this.getAllPosts();
             } else {
-                throw 'Ooops... Your post creation has failed. Please, try again.'
+                Util.showError('Ooops... Your post creation has failed. Please, try again.');
             }
         } catch (e) {
-            throw e;
+            Util.showError(e);
         }
     }
 
@@ -96,7 +97,7 @@ export class Posts extends Component {
         } else if (target === 'content') {
             this.setState({ content: value });
         } else {
-            throw `There is no info in state for ${target}`;
+            Util.showError(`There is no info in state for ${target}`);
         }
     }
 
@@ -123,10 +124,10 @@ export class Posts extends Component {
                             if (data.success) {
                                 await this.getAllPosts();
                             } else {
-                                throw `There is no post with id: ${id}. Error message: ${data.error}`;
+                                Util.showError(`There is no post with id: ${id}. Error message: ${data.error}`);
                             }
                         } catch (e) {
-                            throw e;
+                            Util.showError(e);
                         }
                     }
                 }, {
@@ -137,7 +138,7 @@ export class Posts extends Component {
                 }]
             });
         } catch (e) {
-            throw e;
+            Util.showError(e);
         }
 
     }
@@ -156,7 +157,7 @@ export class Posts extends Component {
         if (data.post) {
             return data.post;
         } else {
-            throw data.error;
+            Util.showError(data.error);
         }
     }
 
@@ -169,7 +170,7 @@ export class Posts extends Component {
                 state: { post: postInfromation }
             });
         } catch (e) {
-            throw e;
+            Util.showError(e);
         }
     }
 
@@ -195,12 +196,13 @@ export class Posts extends Component {
 
             if (data.success) {
                 this.closeModal();
+
                 await this.getAllPosts();
             } else {
-                throw 'Ooops... Your post creation has failed. Please, try again.'
+                Util.showError('Ooops... Your post creation has failed. Please, try again.');
             }
         } catch (e) {
-            throw e;
+            Util.showError(e);
         }
     }
 
@@ -215,7 +217,7 @@ export class Posts extends Component {
 
             this.setState({ loaded: true, posts: data });
         } catch (e) {
-            throw e;
+            Util.showError(e);
         }
     }
 

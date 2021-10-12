@@ -36,10 +36,10 @@ export class Login extends Component {
                     pathname: '/'
                 });
             } else {
-                throw 'Ooops... Your login failed. Please, try again.'
+                Util.showError('Ooops... Your login failed. Please, try again.');
             }
         } catch (e) {
-            throw e;
+            Util.showError(e);
         }
     }
 

@@ -37,10 +37,10 @@ export class ViewPost extends Component {
 
                 commentInput.value = '';
             } else {
-                throw `There was error adding your comment: ${commentValue}`;
+                Util.showError(`There was error adding your comment: ${commentValue}`);
             }
         } catch (e) {
-            throw e;
+            Util.showError(e);
         }
     }
 
