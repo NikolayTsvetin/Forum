@@ -79,6 +79,8 @@ export class Posts extends Component {
 
             if (data.success) {
                 this.closeModal();
+                Util.showSuccess('Post created!');
+
                 await this.getAllPosts();
             } else {
                 Util.showError('Ooops... Your post creation has failed. Please, try again.');

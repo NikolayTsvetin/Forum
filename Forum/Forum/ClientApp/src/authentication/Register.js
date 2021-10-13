@@ -47,6 +47,7 @@ export class Register extends Component {
 
             if (data.success) {
                 Util.toggleButtonsForLoggedUser();
+                Util.showSuccess('Successfully registered!');
 
                 this.props.history.push({
                     pathname: '/'

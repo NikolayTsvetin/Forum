@@ -34,6 +34,7 @@ export class ViewPost extends Component {
 
             if (data.success) {
                 await this.reloadPost(this.state.post.id);
+                Util.showSuccess('Comment added!');
 
                 commentInput.value = '';
             } else {
@@ -125,7 +126,7 @@ export class ViewPost extends Component {
                             return (<div className="col-md-12 postHolder" key={x.id}>
                                 <div className="card-body">
                                     <p className="card-text">{x.content}</p>
-                                    <p>Created on: {new Date(x.dateCreated).toLocaleString()}</p>
+                                    <p>Created by: {x.authorName} on: {new Date(x.dateCreated).toLocaleString()}</p>
                                 </div>
                             </div>);
                         })}

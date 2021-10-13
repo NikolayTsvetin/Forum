@@ -31,6 +31,7 @@ export class Login extends Component {
 
             if (data.success) {
                 Util.toggleButtonsForLoggedUser();
+                Util.showSuccess('Welcome! Successfully logged in!');
 
                 this.props.history.push({
                     pathname: '/'

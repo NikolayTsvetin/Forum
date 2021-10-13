@@ -58,4 +58,12 @@ export class Util extends Component {
     static showError = (err) => {
         alertify.error(err);
     }
+
+    static showSuccess = (message) => {
+        alertify.success(message);
+    }
+
+    static showMessage = (message) => {
+        alertify.warning(message);
+    }
 }

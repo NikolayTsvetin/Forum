@@ -62,13 +62,13 @@ export class NavMenu extends Component {
                         }
                     });
 
+                    Util.showMessage('Sorry to see you go...');
+
                     this.toggleAuthenticationButtons();
                 }
             }, {
                 label: 'No',
                 onClick: () => {
-                    debugger;
-                    alertify.alert('Ready!');
                     return;
                 }
             }]
