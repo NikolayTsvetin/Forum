@@ -26,6 +26,21 @@ namespace Forum.Controllers
             return User.Identity.IsAuthenticated;
         }
 
+        [HttpGet]
+        public async Task<JsonResult> GetCurrentUser()
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                string userName = User.Identity.Name;
+                ApplicationUser user = await _userManager.FindByNameAsync(userName);
+                string userId = user.Id;
+
+                return new JsonResult(new { userName = User.Identity.Name, userId = userId });
+            }
+
+            return new JsonResult(new { userName = string.Empty, userId = string.Empty });
+        }
+
         [HttpPost]
         public async Task<JsonResult> RegisterUser([FromBody] RegistrationViewModel model)
         {

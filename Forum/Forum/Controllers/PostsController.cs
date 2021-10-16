@@ -1,4 +1,5 @@
 ﻿using Forum.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -11,10 +12,12 @@ namespace Forum.Controllers
     public class PostsController : Controller
     {
         private readonly ForumContext context;
+        private readonly UserManager<ApplicationUser> _userManager;
 
-        public PostsController(ForumContext context)
+        public PostsController(ForumContext context, UserManager<ApplicationUser> userManager)
         {
             this.context = context;
+            this._userManager = userManager;
         }
 
         [HttpGet]
@@ -30,8 +33,13 @@ namespace Forum.Controllers
         {
             if (ModelState.IsValid)
             {
+                string userName = User.Identity.Name;
+                ApplicationUser user = await _userManager.FindByNameAsync(userName);
+                string userId = user.Id;
+
                 post.DateCreated = DateTime.Now;
                 post.Id = Guid.NewGuid();
+                post.ApplicationUserId = userId;
 
                 await context.AddAsync(post);
                 await context.SaveChangesAsync();

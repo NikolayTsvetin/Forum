@@ -55,6 +55,17 @@ export class Util extends Component {
         }
     }
 
+    static getCurrentUser = async () => {
+        try {
+            const request = await fetch('User/GetCurrentUser');
+            const currentUser = await request.json();
+
+            return currentUser;
+        } catch (e) {
+            return null;
+        }
+    }
+
     static showError = (err) => {
         alertify.error(err);
     }

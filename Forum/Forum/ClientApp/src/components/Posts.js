@@ -25,6 +25,7 @@ export class Posts extends Component {
         this.state = {
             loaded: false,
             posts: null,
+            currentUser: null,
             createModalIsOpen: false,
             editModalIsOpen: false,
             title: '',
@@ -52,6 +53,13 @@ export class Posts extends Component {
     }
 
     closeModal = (event) => {
+        // If !event is called manually. Close whatever is open.
+        if (!event) {
+            this.setState({ createModalIsOpen: false, editModalIsOpen: false });
+
+            return;
+        }
+
         // Two options - 'Create' and 'Edit'
         const modalType = event.currentTarget.nextElementSibling.innerText;
 
@@ -208,8 +216,11 @@ export class Posts extends Component {
         }
     }
 
-    componentDidMount = () => {
-        this.getAllPosts();
+    componentDidMount = async () => {
+        await this.getAllPosts();
+        const currentUserName = await Util.getCurrentUser();
+
+        this.setState({ currentUser: currentUserName });
     }
 
     getAllPosts = async () => {
@@ -238,7 +249,14 @@ export class Posts extends Component {
             return '';
         }
 
+        const currentUser = this.state.currentUser;
+
         const elements = posts.map(x => {
+            let shoulddisable = 'disabled';
+            if (currentUser && currentUser.userId && x.applicationUserId && currentUser.userId.toLowerCase() === x.applicationUserId.toLowerCase()) {
+                shoulddisable = '';
+            }
+
             return (<div className="col-md-4 postHolder" key={x.id}>
                 <div className="card mb-4 box-shadow">
                     <h4 className="text-center">{x.title}</h4>
@@ -249,10 +267,10 @@ export class Posts extends Component {
                 </div>
                 <div className="btn-group buttonsHolder">
                     <button className="btn btn-sm btn-outline-secondary" onClick={() => this.viewPost(x.id)}>View</button>
-                    <button className="btn btn-sm btn-outline-secondary" onClick={() => this.editPost(x)}>Edit</button>
+                    <button className="btn btn-sm btn-outline-secondary" disabled={shoulddisable} onClick={() => this.editPost(x)}>Edit</button>
                 </div>
                 <div className="btn-group buttonsHolder">
-                    <button className="btn btn-sm btn-outline-secondary" style={{ marginTop: '5px' }} onClick={() => this.deletePost(x.id)}>Delete</button>
+                    <button className="btn btn-sm btn-outline-secondary" disabled={shoulddisable} style={{ marginTop: '5px' }} onClick={() => this.deletePost(x.id)}>Delete</button>
                 </div>
             </div>);
         });
