@@ -21,3 +21,7 @@ code {
 .postHolder {
     margin-bottom: 30px;
 }
+
+.deleteComment {
+    float: right;
+}

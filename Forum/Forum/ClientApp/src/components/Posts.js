@@ -48,7 +48,11 @@ export class Posts extends Component {
         if (!event) {
             this.setState({ editModalIsOpen: true });
         } else {
-            this.setState({ createModalIsOpen: true });
+            if (!this.state.currentUser.userName || this.state.currentUser.userId || this.state.currentUser.userName.length === 0 || this.state.currentUser.userId.length === 0) {
+                Util.showError('To be able to create posts, you must be logged in.');
+            } else {
+                this.setState({ createModalIsOpen: true });
+            }
         }
     }
 
@@ -150,7 +154,6 @@ export class Posts extends Component {
         } catch (e) {
             Util.showError(e);
         }
-
     }
 
     getPostInformation = async (id) => {

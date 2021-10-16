@@ -1,5 +1,7 @@
 ﻿import React, { Component } from 'react';
 import { Util } from '../util/Util';
+import { confirmAlert } from 'react-confirm-alert'; // Import
+import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
 
 export class ViewPost extends Component {
     constructor(props) {
@@ -14,6 +16,7 @@ export class ViewPost extends Component {
         this.reloadPost = this.reloadPost.bind(this);
         this.redirectToLogin = this.redirectToLogin.bind(this);
         this.redirectToRegistration = this.redirectToRegistration.bind(this);
+        this.deleteComment = this.deleteComment.bind(this);
     }
 
     addComment = async () => {
@@ -123,10 +126,13 @@ export class ViewPost extends Component {
                     <h3 className="text-center">Comments:</h3>
                     <div className="row">
                         {post.comments.map(x => {
+                            const disabledstate = this.getDisabledState(post, x);
+
                             return (<div className="col-md-12 postHolder" key={x.id}>
                                 <div className="card-body">
                                     <p className="card-text">{x.content}</p>
                                     <p>Created by: {x.authorName} on: {new Date(x.dateCreated).toLocaleString()}</p>
+                                    <button className="deleteComment btn btn-danger" onClick={() => this.deleteComment(post.id, x.id)} disabled={disabledstate}>Delete comment</button>
                                 </div>
                             </div>);
                         })}
@@ -137,10 +143,80 @@ export class ViewPost extends Component {
         }
     }
 
+    deleteComment = async (postId, commentId) => {
+        try {
+            confirmAlert({
+                title: 'Confirm to delete',
+                message: `Are you sure you want to delete the comment?`,
+                buttons: [{
+                    label: 'Yes',
+                    onClick: async () => {
+                        try {
+                            const response = await fetch('Comments/DeleteComment', {
+                                method: 'DELETE',
+                                headers: {
+                                    'Content-Type': 'application/json'
+                                },
+                                body: JSON.stringify(commentId)
+                            });
+                            const data = await response.json();
+
+                            if (data.success) {
+                                await this.reloadPost(postId);
+                            } else {
+                                Util.showError(`There is no comment with id: ${commentId}. Error message: ${data.error}`);
+                            }
+                        } catch (e) {
+                            Util.showError(e);
+                        }
+                    }
+                }, {
+                    label: 'No',
+                    onClick: () => {
+                        return;
+                    }
+                }]
+            });
+        } catch (e) {
+            Util.showError(e);
+        }
+    }
+
+    getDisabledState = (post, comment) => {
+        if (!post) {
+            return;
+        }
+
+        if (!this.state.currentUser) {
+            return 'disabled';
+        }
+
+        const postAuthorId = post.applicationUserId;
+
+        // If current user is author of the post - should be able to delete every comment
+        if (this.state.currentUser.userId && this.state.currentUser.userId.toLowerCase() === postAuthorId.toLowerCase()) {
+            return '';
+        }
+
+        // If current user is not the author of the post - should be able to delete only comments to which he is author.
+        if (this.state.currentUser.userId && this.state.currentUser.userId.toLowerCase() === comment.applicationUserId.toLowerCase()) {
+            return '';
+        }
+
+        return 'disabled';
+    }
+
     componentDidMount = async () => {
         const isUserLoggedIn = await Util.isUserLoggedIn();
+        const toAddToState = { post: this.props.location.state.post, isUserLoggedIn: isUserLoggedIn }
 
-        this.setState({ post: this.props.location.state.post, isUserLoggedIn: isUserLoggedIn });
+        if (isUserLoggedIn) {
+            const currentUser = await Util.getCurrentUser();
+
+            toAddToState.currentUser = currentUser;
+        }
+
+        this.setState(toAddToState);
     }
 
     render = () => {
