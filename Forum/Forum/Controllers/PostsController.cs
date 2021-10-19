@@ -1,4 +1,5 @@
 ﻿using Forum.Models;
+using Forum.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -40,6 +41,7 @@ namespace Forum.Controllers
                 post.DateCreated = DateTime.Now;
                 post.Id = Guid.NewGuid();
                 post.ApplicationUserId = userId;
+                //post.Likes = new List<ApplicationUser>();
 
                 await context.AddAsync(post);
                 await context.SaveChangesAsync();
@@ -77,7 +79,7 @@ namespace Forum.Controllers
             {
                 Post post = await context.Posts.FindAsync(key);
                 context.Posts.Remove(post);
-             
+
                 await context.SaveChangesAsync();
 
                 return new JsonResult(new { success = true });
@@ -113,6 +115,29 @@ namespace Forum.Controllers
             {
                 return new JsonResult(new { error = $"There is error: ${ex.Message}" });
             }
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> LikePost([FromBody] LikedPost model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    model.Id = Guid.NewGuid();
+
+                    await context.AddAsync(model);
+                    await context.SaveChangesAsync();
+
+                    return new JsonResult(new { success = true });
+                }
+                catch (Exception ex)
+                {
+                    return new JsonResult(new { success = false, error = ex.Message });
+                }
+            }
+
+            return new JsonResult(new { success = false, error = "Wrong view model sent. Expected post id and user id." });
         }
     }
 }

@@ -6,8 +6,8 @@ import { Posts } from './components/Posts';
 import { ViewPost } from './components/ViewPost';
 import { Login } from './authentication/Login';
 import { Register } from './authentication/Register';
-
 import './custom.css'
+
 
 export default class App extends Component {
     static displayName = App.name;
