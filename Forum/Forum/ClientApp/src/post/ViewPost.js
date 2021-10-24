@@ -2,9 +2,7 @@
 import { Util } from '../util/Util';
 import { confirmAlert } from 'react-confirm-alert'; // Import
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
-
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faThumbsUp } from '@fortawesome/free-solid-svg-icons'
+import { Likes } from './Likes';
 
 export class ViewPost extends Component {
     constructor(props) {
@@ -13,14 +11,13 @@ export class ViewPost extends Component {
         this.state = {
             post: null,
             isUserLoggedIn: false
-        }
+        };
 
         this.addComment = this.addComment.bind(this);
         this.reloadPost = this.reloadPost.bind(this);
         this.redirectToLogin = this.redirectToLogin.bind(this);
         this.redirectToRegistration = this.redirectToRegistration.bind(this);
         this.deleteComment = this.deleteComment.bind(this);
-        this.onLike = this.onLike.bind(this);
     }
 
     addComment = async () => {
@@ -75,42 +72,14 @@ export class ViewPost extends Component {
             return 'Post info is being generated...';
         }
 
-        // TODO: Logic about already liked post
-
         return (<section className="jumbotron text-center">
             <div className="container">
                 <h1 className="jumbotron-heading">{post.title}</h1>
                 <p className="lead text-muted">{post.content}</p>
                 <p className="lead text-muted">Created on: {new Date(post.dateCreated).toLocaleString()}</p>
-                <button onClick={this.onLike} className="btn btn-primary">Like <FontAwesomeIcon icon={faThumbsUp} /></button>
+                <Likes postId={post.id} />
             </div>
         </section>);
-    }
-
-    onLike = async (e) => {
-        e.preventDefault();
-
-        const isUserLoggedIn = this.state.isUserLoggedIn;
-
-        if (!isUserLoggedIn) {
-            Util.showError('To like this post, you must be logged in.');
-
-            return;
-        }
-
-        debugger;
-        const currentUser = await Util.getCurrentUser();
-        const currentPost = this.state.post;
-        const model = { postId: currentPost.id, userId: currentUser.userId };
-
-        const response = await fetch('Posts/LikePost', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(model)
-        });
-        debugger;
     }
 
     redirectToLogin = () => {

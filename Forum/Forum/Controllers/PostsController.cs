@@ -116,28 +116,5 @@ namespace Forum.Controllers
                 return new JsonResult(new { error = $"There is error: ${ex.Message}" });
             }
         }
-
-        [HttpPost]
-        public async Task<JsonResult> LikePost([FromBody] LikedPost model)
-        {
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    model.Id = Guid.NewGuid();
-
-                    await context.AddAsync(model);
-                    await context.SaveChangesAsync();
-
-                    return new JsonResult(new { success = true });
-                }
-                catch (Exception ex)
-                {
-                    return new JsonResult(new { success = false, error = ex.Message });
-                }
-            }
-
-            return new JsonResult(new { success = false, error = "Wrong view model sent. Expected post id and user id." });
-        }
     }
 }
