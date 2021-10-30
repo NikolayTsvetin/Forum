@@ -21,7 +21,7 @@ namespace Forum.Controllers
         }
 
         [HttpGet]
-        public async Task<IEnumerable<LikedPost>> GetLikes(string postId)
+        public async Task<IEnumerable<LikedPost>> GetPostLikes(string postId)
         {
             List<LikedPost> allLikes = await context.LikedPosts.ToListAsync();
 
@@ -65,6 +65,62 @@ namespace Forum.Controllers
             }
 
             return new JsonResult(new { success = false, error = "Wrong view model sent. Expected post id and user id." });
+        }
+
+        [HttpPost]
+        public async Task<JsonResult> LikeComment([FromBody] LikedComment model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    model.Id = Guid.NewGuid();
+
+                    await context.AddAsync(model);
+                    await context.SaveChangesAsync();
+
+                    return new JsonResult(new { success = true });
+                }
+                catch (Exception ex)
+                {
+                    return new JsonResult(new { success = false, error = ex.Message });
+                }
+            }
+
+            return new JsonResult(new { success = false, error = "Wrong view model sent. Expected comment id and user id." });
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> GetAllLikesForCommentsOnPost(string postId)
+        {
+            try
+            {
+                Guid.TryParse(postId, out Guid key);
+
+                // get ids for all comments on post
+                Post post = await context.Posts.FindAsync(key);
+                List<Comment> allComments = await context.Comments.ToListAsync();
+                IEnumerable<Comment> commentsForPost = allComments.Where(x => x.PostId == post.Id);
+                List<Guid> commentsIds = commentsForPost.Select(x => x.Id).ToList();
+
+                List<LikedComment> allLikesForCommentsOnPost = new List<LikedComment>();
+
+                // get all likes for these comments
+                List<LikedComment> allLikes = await context.LikedComments.ToListAsync();
+                foreach (var likedComment in allLikes)
+                {
+                    if (commentsIds.IndexOf(likedComment.CommentId) >= 0)
+                    {
+                        allLikesForCommentsOnPost.Add(likedComment);
+                    }
+                }
+
+                return new JsonResult(new { likesForComments = allLikesForCommentsOnPost }); ;
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new { error = $"There is error: ${ex.Message}" });
+            }
         }
     }
 }

@@ -2,6 +2,8 @@
 import { Util } from '../util/Util';
 import { confirmAlert } from 'react-confirm-alert'; // Import
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faTrash, faThumbsUp } from '@fortawesome/free-solid-svg-icons'
 
 export class Comments extends Component {
     constructor(props) {
@@ -10,7 +12,8 @@ export class Comments extends Component {
         this.state = {
             isUserLoggedIn: null,
             currentUser: null,
-            post: null
+            post: null,
+            likesForComments: null
         };
 
         this.redirectToLogin = this.redirectToLogin.bind(this);
@@ -31,8 +34,9 @@ export class Comments extends Component {
         });
 
         const data = await response.json();
+        const likesForComments = await this.getAllLikesForCommentsOnPost(postId);
 
-        this.setState({ post: data.post });
+        this.setState({ post: data.post, likesForComments: likesForComments });
     }
 
     redirectToLogin = () => {
@@ -50,6 +54,12 @@ export class Comments extends Component {
     addComment = async () => {
         const commentInput = document.getElementById('comment');
         const commentValue = commentInput.value;
+
+        if (!commentValue || commentValue.length < 3) {
+            Util.showError('Comment cannot be less than 3 symbols.');
+
+            return;
+        }
 
         try {
             const comment = { content: commentValue, postId: this.props.post.id };
@@ -105,18 +115,24 @@ export class Comments extends Component {
                 {isLoggedInCheck}
             </div>);
         } else {
+            const sortedCommentByDate = post.comments.sort((x, y) => new Date(y.dateCreated) - new Date(x.dateCreated));
+
             return (<div className="album py-5 bg-light">
                 <div className="container">
                     <h3 className="text-center">Comments:</h3>
                     <div className="row">
-                        {post.comments.map(x => {
-                            const disabledstate = this.getDisabledState(post, x);
+                        {sortedCommentByDate.map(x => {
+                            const deletedisabledstate = this.getDeleteState(post, x);
+                            const likedisabledstate = this.getLikeState(x.id);
+                            const likesCount = this.getLikesCount(x.id);
 
                             return (<div className="col-md-12 postHolder" key={x.id}>
                                 <div className="card-body">
                                     <p className="card-text">{x.content}</p>
-                                    <p>Created by: {x.authorName} on: {new Date(x.dateCreated).toLocaleString()}</p>
-                                    <button className="deleteComment btn btn-danger" onClick={() => this.deleteComment(post.id, x.id)} disabled={disabledstate}>Delete comment</button>
+                                    <p>Created by: <b>{x.authorName}</b> on: {new Date(x.dateCreated).toLocaleString()}.</p>
+                                    <p><b>Likes: {likesCount}</b></p>
+                                    <button className="deleteComment btn btn-danger" onClick={() => this.deleteComment(post.id, x.id)} disabled={deletedisabledstate}><FontAwesomeIcon icon={faTrash} /></button>
+                                    <button className="deleteComment btn btn-primary" onClick={() => this.likeComment(post.id, x.id)} disabled={likedisabledstate}><FontAwesomeIcon icon={faThumbsUp} /></button>
                                 </div>
                             </div>);
                         })}
@@ -124,6 +140,34 @@ export class Comments extends Component {
                     </div>
                 </div>
             </div>);
+        }
+    }
+
+    likeComment = async (postId, commentId) => {
+        if (!this.state.isUserLoggedIn) {
+            Util.showError('To like this comment, you must be logged in.');
+
+            return;
+        }
+
+        const model = { commentId: commentId, userId: this.state.currentUser.userId };
+
+        const response = await fetch('Likes/LikeComment', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(model)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            await this.reloadPost(postId);
+        }
+
+        if (result.error) {
+            Util.showError(result.error);
         }
     }
 
@@ -166,7 +210,7 @@ export class Comments extends Component {
         }
     }
 
-    getDisabledState = (post, comment) => {
+    getDeleteState = (post, comment) => {
         if (!post) {
             return;
         }
@@ -190,6 +234,47 @@ export class Comments extends Component {
         return 'disabled';
     }
 
+    getLikeState = (commentId) => {
+        if (!this.state.currentUser) {
+            return 'disabled';
+        }
+
+        if (!this.state.likesForComments || this.state.likesForComments.length === 0) {
+            return '';
+        }
+
+        const commentIsLiked = this.state.likesForComments.filter(x => x.commentId.toLowerCase() === commentId.toLowerCase());
+
+        if (!commentIsLiked || commentIsLiked.length === 0) {
+            return '';
+        }
+
+        const commentIsLikedByCurrentUser = commentIsLiked.filter(x => x.userId.toLowerCase() === this.state.currentUser.userId.toLowerCase());
+
+        if (!commentIsLikedByCurrentUser || commentIsLikedByCurrentUser.length === 0) {
+            return '';
+        }
+
+        return 'disabled';
+    }
+
+    getLikesCount = (commentId) => {
+        if (!this.state.likesForComments || this.state.likesForComments.length === 0) {
+            return 0;
+        }
+
+        const likesForComment = this.state.likesForComments.filter(x => x.commentId.toLowerCase() === commentId.toLowerCase());
+
+        return likesForComment.length;
+    }
+
+    getAllLikesForCommentsOnPost = async (postId) => {
+        const response = await fetch(`Likes/GetAllLikesForCommentsOnPost?postId=${postId}`);
+        const data = await response.json();
+
+        return data.likesForComments;
+    }
+
     componentDidMount = async () => {
         const isUserLoggedIn = await Util.isUserLoggedIn();
 
@@ -199,7 +284,9 @@ export class Comments extends Component {
             this.setState({ currentUser: currentUser });
         }
 
-        this.setState({ isUserLoggedIn: isUserLoggedIn });
+        const likesForComments = await this.getAllLikesForCommentsOnPost(this.props.post.id);
+
+        this.setState({ isUserLoggedIn: isUserLoggedIn, likesForComments: likesForComments });
     }
 
     render = () => {
@@ -207,7 +294,6 @@ export class Comments extends Component {
         const commentsSection = this.createCommentsSection(post);
 
         return (<div>
-            <h1>opalq</h1>
             {commentsSection}
         </div>);
     }

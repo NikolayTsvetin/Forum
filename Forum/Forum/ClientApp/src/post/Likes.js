@@ -79,7 +79,7 @@ export class Likes extends Component {
 
     getPostLikes = async (postId) => {
         try {
-            const response = await fetch(`Likes/GetLikes?postId=${postId}`);
+            const response = await fetch(`Likes/GetPostLikes?postId=${postId}`);
             const likes = await response.json();
 
             return likes;

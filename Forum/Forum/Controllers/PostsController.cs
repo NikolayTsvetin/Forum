@@ -41,7 +41,6 @@ namespace Forum.Controllers
                 post.DateCreated = DateTime.Now;
                 post.Id = Guid.NewGuid();
                 post.ApplicationUserId = userId;
-                //post.Likes = new List<ApplicationUser>();
 
                 await context.AddAsync(post);
                 await context.SaveChangesAsync();
