@@ -56,6 +56,38 @@ export class Likes extends Component {
         }
     }
 
+    onUnlike = async (e) => {
+        e.preventDefault();
+
+        if (!this.props.postId) {
+            Util.showError('Unexpected error. Post id cannot be found.');
+
+            return;
+        }
+
+        const model = { postId: this.props.postId, userId: this.state.currentUser.userId };
+
+        const response = await fetch('Likes/UnlikePost', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(model)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            const likes = await this.getPostLikes(this.props.postId);
+
+            this.setState({ likes: likes, isLikedByUser: false });
+        }
+
+        if (result.error) {
+            Util.showError(result.error);
+        }
+    }
+
     componentDidMount = async () => {
         const isUserLoggedIn = await Util.isUserLoggedIn();
 
@@ -104,11 +136,17 @@ export class Likes extends Component {
     }
 
     generateLikeSection = () => {
-        const likeButton = this.state.isLikedByUser ? <button disabled="disabled" className="btn btn-primary">Liked <FontAwesomeIcon icon={faThumbsUp} /></button> : <button onClick={this.onLike} className="btn btn-primary">Like <FontAwesomeIcon icon={faThumbsUp} /></button>;
-
         if (!this.state.likes) {
             return 'Generating likes section...';
         }
+
+        if (!this.state.currentUser) {
+            return (<div><p>Total likes: {this.state.likes.length}</p>
+                <p><button onClick={this.onLike} className="btn btn-primary">Like <FontAwesomeIcon icon={faThumbsUp} /></button></p>
+            </div>);
+        }
+
+        const likeButton = this.state.isLikedByUser ? <button onClick={this.onUnlike} className="btn btn-secondary">Liked <FontAwesomeIcon icon={faThumbsUp} /></button> : <button onClick={this.onLike} className="btn btn-primary">Like <FontAwesomeIcon icon={faThumbsUp} /></button>;
 
         return (<div><p>Total likes: {this.state.likes.length}</p>
             <p>{likeButton}</p>
