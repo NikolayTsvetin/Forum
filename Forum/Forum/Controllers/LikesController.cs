@@ -129,7 +129,6 @@ namespace Forum.Controllers
         {
             List<LikedPost> allLikes = await context.LikedPosts.ToListAsync();
             List<Post> allPosts = await context.Posts.ToListAsync();
-
             Dictionary<Guid, int> mappedPostsAndLikes = new Dictionary<Guid, int>();
 
             foreach (LikedPost like in allLikes)
@@ -157,6 +156,36 @@ namespace Forum.Controllers
                 topModel.LikesCount = mappedPostsAndLikes[post.Key];
                 topModel.Author = user.UserName;
                 
+                top3Posts.Add(topModel);
+            }
+
+            return new JsonResult(new { data = top3Posts });
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> GetTop3MostCommentedPosts()
+        {
+            List<Comment> allComments = await context.Comments.ToListAsync();
+            List<Post> allPosts = await context.Posts.ToListAsync();
+            Dictionary<Guid, int> mappedPostsAndComments = new Dictionary<Guid, int>();
+
+            foreach (var post in allPosts)
+            {
+                post.Comments = allComments.Where(x => x.PostId == post.Id);
+            }
+
+            var sorted = allPosts.OrderByDescending(x => x.Comments.Count()).ToList();
+
+            List<Post> top3 = sorted.Take(3).ToList();
+            List<TopPostViewModel> top3Posts = new List<TopPostViewModel>();
+
+            foreach (var post in top3)
+            {
+                var user = await _userManager.FindByIdAsync(post.ApplicationUserId);
+                TopPostViewModel topModel = new TopPostViewModel();
+                topModel.Post = post;
+                topModel.Author = user.UserName;
+
                 top3Posts.Add(topModel);
             }
 

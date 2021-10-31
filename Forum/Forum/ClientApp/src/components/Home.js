@@ -9,7 +9,8 @@ export class Home extends Component {
 
         this.state = {
             currentUser: null,
-            posts: null,
+            likedPosts: null,
+            commentedPosts: null,
             loaded: null
         }
     }
@@ -25,13 +26,24 @@ export class Home extends Component {
             const response = await fetch('Likes/GetTop3MostLikedPosts');
             const data = await response.json();
 
-            this.setState({ loaded: true, posts: data });
+            this.setState({ loaded: true, likedPosts: data });
         } catch (e) {
             Util.showError(e);
         }
     }
 
-    showPosts = (posts) => {
+    getTop3MostCommentedPosts = async () => {
+        try {
+            const response = await fetch('Likes/GetTop3MostCommentedPosts');
+            const data = await response.json();
+
+            this.setState({ loaded: true, commentedPosts: data });
+        } catch (e) {
+            Util.showError(e);
+        }
+    }
+
+    mostLikedPosts = (posts) => {
         if (!posts || posts.length === 0) {
             return '';
         }
@@ -47,6 +59,32 @@ export class Home extends Component {
                     <p className="card-text text-center">{Util.trimContent(x.post.content)}</p>
                     <p className="text-center">Created by: <b>{x.author}</b>.</p>
                     <p className="text-center">Posted on: <b>{new Date(x.post.dateCreated).toLocaleString()}</b>. Likes: <b>{x.likesCount}</b></p>
+                </div>
+                <div className="btn-group buttonsHolder">
+                    <button className="btn btn-sm btn-outline-secondary" onClick={() => this.viewPost(x.post.id)}>View</button>
+                </div>
+            </div>);
+        });
+
+        return elements;
+    }
+
+    mostCommentedPosts = (posts) => {
+        if (!posts || posts.length === 0) {
+            return '';
+        }
+
+        const items = posts.data;
+
+        const elements = items.map(x => {
+            return (<div className="col-md-4 postHolder" key={x.post.id}>
+                <div className="card mb-4 box-shadow">
+                    <h4 className="text-center">{x.post.title}</h4>
+                </div>
+                <div className="card-body">
+                    <p className="card-text text-center">{Util.trimContent(x.post.content)}</p>
+                    <p className="text-center">Created by: <b>{x.author}</b>.</p>
+                    <p className="text-center">Posted on: <b>{new Date(x.post.dateCreated).toLocaleString()}</b>. Comments: <b>{x.post.comments.length}</b></p>
                 </div>
                 <div className="btn-group buttonsHolder">
                     <button className="btn btn-sm btn-outline-secondary" onClick={() => this.viewPost(x.post.id)}>View</button>
@@ -91,26 +129,33 @@ export class Home extends Component {
     componentDidMount = async () => {
         const currentUserName = await Util.getCurrentUser();
         await this.getTop3MostLikedPosts();
+        await this.getTop3MostCommentedPosts();
 
         this.setState({ currentUser: currentUserName });
     }
 
     render = () => {
         const helloMessage = this.getHelloMessage();
-        const content = this.state.loaded ? this.showPosts(this.state.posts) : 'Collecting our most liked posts for you...';
+        const mostLikedPosts = this.state.loaded ? this.mostLikedPosts(this.state.likedPosts) : 'Collecting our most popular posts for you...';
+        const mostCommentedPosts = this.state.loaded ? this.mostCommentedPosts(this.state.commentedPosts) : '';
 
         return (
             <div>
                 <section className="jumbotron text-center">
                     <div className="container">
                         {helloMessage}
-                        <p className="lead text-muted">Below you can see our top 3 most liked posts!</p>
+                        <p className="lead text-muted">Below you can see our most popular posts!</p>
                     </div>
                 </section>
                 <div className="album py-5 bg-light">
                     <div className="container">
+                        <h2 className="text-center mb-5">Top 3 most liked posts</h2>
                         <div className="row">
-                            {content}
+                            {mostLikedPosts}
+                        </div>
+                        <h2 className="text-center mb-5">Top 3 most commented posts</h2>
+                        <div className="row">
+                            {mostCommentedPosts}
                         </div>
                     </div>
                 </div>
