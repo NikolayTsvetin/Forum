@@ -125,14 +125,22 @@ export class Comments extends Component {
                             const deletedisabledstate = this.getDeleteState(post, x);
                             const likedisabledstate = this.getLikeState(x.id);
                             const likesCount = this.getLikesCount(x.id);
+                            let likeButton = <button className="deleteComment btn btn-primary" onClick={() => this.likeComment(post.id, x.id)} disabled={likedisabledstate}>Like <FontAwesomeIcon icon={faThumbsUp} /></button>;
 
+                            if (this.state.isUserLoggedIn && this.state.likesForComments && this.state.likesForComments.length > 0) {
+                                const match = this.state.likesForComments.filter(c => c.commentId.toLowerCase() === x.id.toLowerCase() && c.userId.toLowerCase() === this.state.currentUser.userId.toLowerCase());
+
+                                if (match && match.length > 0) {
+                                    likeButton = <button className="deleteComment btn btn-secondary" onClick={() => this.unlikeComment(post.id, x.id)}>Liked <FontAwesomeIcon icon={faThumbsUp} /></button>;
+                                }
+                            }
                             return (<div className="col-md-12 postHolder" key={x.id}>
                                 <div className="card-body">
                                     <p className="card-text">{x.content}</p>
                                     <p>Created by: <b>{x.authorName}</b> on: {new Date(x.dateCreated).toLocaleString()}.</p>
                                     <p><b>Likes: {likesCount}</b></p>
                                     <button className="deleteComment btn btn-danger" onClick={() => this.deleteComment(post.id, x.id)} disabled={deletedisabledstate}><FontAwesomeIcon icon={faTrash} /></button>
-                                    <button className="deleteComment btn btn-primary" onClick={() => this.likeComment(post.id, x.id)} disabled={likedisabledstate}><FontAwesomeIcon icon={faThumbsUp} /></button>
+                                    {likeButton}
                                 </div>
                             </div>);
                         })}
@@ -140,6 +148,28 @@ export class Comments extends Component {
                     </div>
                 </div>
             </div>);
+        }
+    }
+
+    unlikeComment = async (postId, commentId) => {
+        const model = { commentId: commentId, userId: this.state.currentUser.userId };
+
+        const response = await fetch('Likes/UnlikeComment', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(model)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            await this.reloadPost(postId);
+        }
+
+        if (result.error) {
+            Util.showError(result.error);
         }
     }
 

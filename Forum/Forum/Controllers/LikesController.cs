@@ -71,10 +71,7 @@ namespace Forum.Controllers
         [HttpDelete]
         public async Task<JsonResult> UnlikePost([FromBody] LikedPost model)
         {
-            // get all likes
             List<LikedPost> likedPosts = await context.LikedPosts.ToListAsync();
-
-            // find which one has postId == model.postId && userId == model.userId
             LikedPost toDelete = likedPosts.Where(x => x.PostId == model.PostId && x.UserId == model.UserId).FirstOrDefault();
 
             if (toDelete == null)
@@ -109,6 +106,23 @@ namespace Forum.Controllers
             }
 
             return new JsonResult(new { success = false, error = "Wrong view model sent. Expected comment id and user id." });
+        }
+
+        [HttpDelete]
+        public async Task<JsonResult> UnlikeComment([FromBody] LikedComment model)
+        {
+            List<LikedComment> likedComments = await context.LikedComments.ToListAsync();
+            LikedComment toDelete = likedComments.Where(x => x.CommentId == model.CommentId && x.UserId == model.UserId).FirstOrDefault();
+
+            if (toDelete == null)
+            {
+                return new JsonResult(new { error = true });
+            }
+
+            context.LikedComments.Remove(toDelete);
+            await context.SaveChangesAsync();
+
+            return new JsonResult(new { success = true });
         }
 
         [HttpGet]
