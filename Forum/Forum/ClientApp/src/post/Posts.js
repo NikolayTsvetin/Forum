@@ -212,7 +212,7 @@ export class Posts extends Component {
 
                 await this.getAllPosts();
             } else {
-                Util.showError('Ooops... Your post creation has failed. Please, try again.');
+                Util.showError('Ooops... Your post update has failed. Please, try again.');
             }
         } catch (e) {
             Util.showError(e);
@@ -237,16 +237,6 @@ export class Posts extends Component {
         }
     }
 
-    trimContent = (content) => {
-        const maximumVisibleLength = 20;
-
-        if (content.length > maximumVisibleLength) {
-            return `${content.slice(0, 17)}...`;
-        }
-
-        return content;
-    }
-
     showPosts = (posts) => {
         if (!posts || posts.length === 0) {
             return '';
@@ -265,7 +255,7 @@ export class Posts extends Component {
                     <h4 className="text-center">{x.title}</h4>
                 </div>
                 <div className="card-body">
-                    <p className="card-text text-center">{this.trimContent(x.content)}</p>
+                    <p className="card-text text-center">{Util.trimContent(x.content)}</p>
                     <p className="text-center">Posted on: {new Date(x.dateCreated).toLocaleString()}</p>
                 </div>
                 <div className="btn-group buttonsHolder">

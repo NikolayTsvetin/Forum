@@ -1,4 +1,5 @@
 ﻿using Forum.Models;
+using Forum.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -121,6 +122,45 @@ namespace Forum.Controllers
             {
                 return new JsonResult(new { error = $"There is error: ${ex.Message}" });
             }
+        }
+
+        [HttpGet]
+        public async Task<JsonResult> GetTop3MostLikedPosts()
+        {
+            List<LikedPost> allLikes = await context.LikedPosts.ToListAsync();
+            List<Post> allPosts = await context.Posts.ToListAsync();
+
+            Dictionary<Guid, int> mappedPostsAndLikes = new Dictionary<Guid, int>();
+
+            foreach (LikedPost like in allLikes)
+            {
+                if (mappedPostsAndLikes.ContainsKey(like.PostId))
+                {
+                    mappedPostsAndLikes[like.PostId]++;
+                }
+                else
+                {
+                    mappedPostsAndLikes.Add(like.PostId, 1);
+                }
+            }
+
+            var sorted = mappedPostsAndLikes.ToList().OrderByDescending(x => x.Value).ToList();
+            var top3 = sorted.Take(3).ToList();
+            List<TopPostViewModel> top3Posts = new List<TopPostViewModel>();
+
+            foreach (var post in top3)
+            {
+                Post postItem = await context.Posts.FindAsync(post.Key);
+                var user = await _userManager.FindByIdAsync(postItem.ApplicationUserId);
+                TopPostViewModel topModel = new TopPostViewModel();
+                topModel.Post = postItem;
+                topModel.LikesCount = mappedPostsAndLikes[post.Key];
+                topModel.Author = user.UserName;
+                
+                top3Posts.Add(topModel);
+            }
+
+            return new JsonResult(new { data = top3Posts });
         }
     }
 }

@@ -15,7 +15,7 @@ namespace Forum.Models
         [StringLength(50, ErrorMessage = "Post title cannot be more than 50 symbols.")]
         public string Title { get; set; }
 
-        [StringLength(500, ErrorMessage = "Post content cannot be more than 500 symbols.")]
+        [StringLength(1000, ErrorMessage = "Post content cannot be more than 1000 symbols.")]
         public string Content { get; set; }
 
         public DateTime DateCreated { get; set; }

@@ -77,4 +77,14 @@ export class Util extends Component {
     static showMessage = (message) => {
         alertify.warning(message);
     }
+
+    static trimContent = (content) => {
+        const maximumVisibleLength = 20;
+
+        if (content.length > maximumVisibleLength) {
+            return `${content.slice(0, 17)}...`;
+        }
+
+        return content;
+    }
 }
