@@ -9,3 +9,8 @@ Forum web application made with ASP.NET Core as a back end and React.js as UI.
 - Logged in users can like/unline comments.
 - Post authors can remove every comment under the post.
 - Logged in users can delete only their comments under a post, if the post is not created by them.
+
+### Features to come:
+- Users should be able to open their profile and see all of their posts.
+- Users should be able to upload a profile picture/avatar.
+- Avatars should be displayed next to the comments.
