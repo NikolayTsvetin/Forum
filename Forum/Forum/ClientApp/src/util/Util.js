@@ -18,9 +18,11 @@ export class Util extends Component {
         const logoutButton = document.getElementById('logoutButton');
         const loginButton = document.getElementById('loginButton');
         const registerButton = document.getElementById('registerButton');
+        const userInfoButton = document.getElementById('userInfoButton');
 
         if (logoutButton) {
             logoutButton.style.display = 'inline';
+            userInfoButton.style.display = 'inline';
         }
 
         if (loginButton && registerButton) {
@@ -33,9 +35,11 @@ export class Util extends Component {
         const logoutButton = document.getElementById('logoutButton');
         const loginButton = document.getElementById('loginButton');
         const registerButton = document.getElementById('registerButton');
+        const userInfoButton = document.getElementById('userInfoButton');
 
         if (logoutButton) {
             logoutButton.style.display = 'none';
+            userInfoButton.style.display = 'none';
         }
 
         if (loginButton && registerButton) {

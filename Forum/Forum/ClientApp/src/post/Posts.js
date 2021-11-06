@@ -40,7 +40,8 @@ export class Posts extends Component {
         this.deletePost = this.deletePost.bind(this);
         this.editPost = this.editPost.bind(this);
         this.saveEditedModal = this.saveEditedModal.bind(this);
-
+        this.onAllPosts = this.onAllPosts.bind(this);
+        this.onOnlyMine = this.onOnlyMine.bind(this);
     }
 
     openModal = (event) => {
@@ -219,6 +220,47 @@ export class Posts extends Component {
         }
     }
 
+    getToggleButtons = () => {
+        if (!this.state.currentUser || !this.state.currentUser.userId) {
+            return '';
+        }
+
+        return (<div className="btn-group btn-group-toggle" data-toggle="buttons">
+            <button onClick={this.onAllPosts} id="allPostsButton" className="btn btn-secondary active">All posts</button>
+            <button onClick={this.onOnlyMine} id="onlyMineButton" className="btn btn-secondary">Only mine</button>
+        </div>);
+    }
+
+    onAllPosts = async (event) => {
+        event.preventDefault();
+        const allPostsButton = document.getElementById('allPostsButton');
+        const onlyMineButton = document.getElementById('onlyMineButton');
+
+        // Button is already selected, no action here.
+        if (allPostsButton.className.indexOf('active') >= 0) {
+            return;
+        }
+
+        allPostsButton.classList.add('active');
+        onlyMineButton.classList.remove('active');
+        await this.getAllPosts();
+    }
+
+    onOnlyMine = async (event) => {
+        event.preventDefault();
+        const allPostsButton = document.getElementById('allPostsButton');
+        const onlyMineButton = document.getElementById('onlyMineButton');
+
+        // Button is already selected, no action here.
+        if (onlyMineButton.className.indexOf('active') >= 0) {
+            return;
+        }
+
+        allPostsButton.classList.remove('active');
+        onlyMineButton.classList.add('active');
+        await this.getPostsOnlyByCurrentUser();
+    }
+
     componentDidMount = async () => {
         await this.getAllPosts();
         const currentUserName = await Util.getCurrentUser();
@@ -229,6 +271,17 @@ export class Posts extends Component {
     getAllPosts = async () => {
         try {
             const response = await fetch('Posts/GetPosts');
+            const data = await response.json();
+
+            this.setState({ loaded: true, posts: data });
+        } catch (e) {
+            Util.showError(e);
+        }
+    }
+
+    getPostsOnlyByCurrentUser = async () => {
+        try {
+            const response = await fetch(`Posts/GetPostsByUser?id=${this.state.currentUser.userId}`);
             const data = await response.json();
 
             this.setState({ loaded: true, posts: data });
@@ -273,6 +326,7 @@ export class Posts extends Component {
 
     render = () => {
         const content = this.state.loaded ? this.showPosts(this.state.posts) : 'Retrieving all posts...';
+        const toggleButtons = this.getToggleButtons();
 
         return (<div>
             <section className="jumbotron text-center">
@@ -280,6 +334,7 @@ export class Posts extends Component {
                     <h1 className="jumbotron-heading">All posts</h1>
                     <p className="lead text-muted">Below you can see all available posts. Check if something is interesting for you, or post your own topic!</p>
                     <p><button className="btn btn-primary my-2" onClick={this.openModal}>Create post</button></p>
+                    {toggleButtons}
                     <Modal
                         isOpen={this.state.createModalIsOpen}
                         onRequestClose={this.closeModal}

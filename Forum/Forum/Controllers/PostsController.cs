@@ -115,5 +115,14 @@ namespace Forum.Controllers
                 return new JsonResult(new { error = $"There is error: ${ex.Message}" });
             }
         }
+
+        [HttpGet]
+        public async Task<IEnumerable<Post>> GetPostsByUser(string id)
+        {
+            List<Post> posts = await context.Posts.ToListAsync();
+            List<Post> postsByUser = posts.Where(x => String.Equals(x.ApplicationUserId.ToString(), id, StringComparison.InvariantCultureIgnoreCase)).ToList();
+
+            return postsByUser;
+        }
     }
 }
