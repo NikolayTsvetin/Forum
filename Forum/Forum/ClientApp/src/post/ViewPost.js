@@ -1,17 +1,18 @@
-﻿import React, { Component } from 'react';
+﻿import React, { useEffect, useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import { Likes } from './Likes';
 import { Comments } from './Comments';
 
-export class ViewPost extends Component {
-    constructor(props) {
-        super(props);
+const ViewPost = () => {
+    const history = useHistory();
 
-        this.state = {
-            post: null
-        };
-    }
+    const [post, setPost] = useState(null);
 
-    generatePostInfo = (post) => {
+    useEffect(() => {
+        setPost(history.location.state.post);
+    }, []);
+
+    const generatePostInfo = post => {
         if (!post) {
             return 'Post info is being generated...';
         }
@@ -24,18 +25,14 @@ export class ViewPost extends Component {
                 <Likes postId={post.id} />
             </div>
         </section>);
-    }
+    };
 
-    componentDidMount = async () => {
-        this.setState({ post: this.props.location.state.post });
-    }
+    const postInfo = generatePostInfo(post);
 
-    render = () => {
-        const postInfo = this.generatePostInfo(this.state.post);
-
-        return (<div className="container">
-            {postInfo}
-            <Comments post={this.state.post} />
-        </div>);
-    }
+    return (<div className="container">
+        {postInfo}
+        <Comments post={post} />
+    </div>);
 }
+
+export default ViewPost;
