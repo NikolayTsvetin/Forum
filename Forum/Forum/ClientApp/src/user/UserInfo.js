@@ -20,7 +20,24 @@ export class UserInfo extends Component {
         }
     }
 
+    getHeading = () => {
+        if (!this.state.currentUser || !this.state.currentUser.userName) {
+            return 'Loading...';
+        }
+
+        return (<h1 className="jumbotron-heading">Hello, {this.state.currentUser.userName}</h1>);
+    }
+
     render = () => {
-        return (<h1>WIP</h1>);
+        const heading = this.getHeading();
+
+        return (<div>
+            <section className="jumbotron text-center">
+                <div className="container">
+                    {heading}
+                    <p className="lead text-muted">baligo!</p>
+                </div>
+            </section>
+        </div>);
     }
 }

@@ -1,27 +1,21 @@
-﻿import React, { Component } from 'react';
+﻿import React, { useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import { Util } from '../util/Util';
 
-export class Register extends Component {
-    constructor(props) {
-        super(props);
+const Register = () => {
+    const history = useHistory();
 
-        this.state = {
-            email: '',
-            password: '',
-            confirmPassword: ''
-        };
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
 
-        this.onRegister = this.onRegister.bind(this);
-        this.onChange = this.onChange.bind(this);
-    }
-
-    onRegister = async (event) => {
+    const onRegister = async event => {
         event.preventDefault();
 
         const registrationData = {
-            email: this.state.email,
-            password: this.state.password,
-            confirmPassword: this.state.confirmPassword
+            email: email,
+            password: password,
+            confirmPassword: confirmPassword
         };
 
         if (registrationData.password !== registrationData.confirmPassword) {
@@ -49,9 +43,8 @@ export class Register extends Component {
                 Util.toggleButtonsForLoggedUser();
                 Util.showSuccess('Successfully registered!');
 
-                this.props.history.push({
-                    pathname: '/'
-                });
+                history.push('/');
+                return;
             } else {
                 Util.showError('Ooops... Your registration failed. Please, try again.');
             }
@@ -60,49 +53,26 @@ export class Register extends Component {
         }
     }
 
-    onChange = (event) => {
-        const target = event.target.name;
-        const value = event.target.value;
-
-        if (target === 'email') {
-            this.setState({ email: value });
-        } else if (target === 'password') {
-            this.setState({ password: value });
-        } else if (target === 'confirmPassword') {
-            this.setState({ confirmPassword: value });
-        } else {
-            Util.showError(`There is no info in state for ${target}`);
-        }
-    }
-
-    getRegistrationForm = () => {
-        return (
+    return (<div className="row">
+        <div className="col-md-12">
             <form>
                 <div className="text-danger"></div>
                 <div className="form-group">
                     <label>Email:</label>
-                    <input className="form-control" name="email" type="email" onChange={this.onChange} />
+                    <input className="form-control" name="email" type="email" onChange={e => setEmail(e.target.value)} />
                 </div>
                 <div className="form-group">
                     <label>Password:</label>
-                    <input className="form-control" name="password" type="password" onChange={this.onChange} />
+                    <input className="form-control" name="password" type="password" onChange={e => setPassword(e.target.value)} />
                 </div>
                 <div className="form-group">
                     <label>Confirm password:</label>
-                    <input className="form-control" name="confirmPassword" type="password" onChange={this.onChange} />
+                    <input className="form-control" name="confirmPassword" type="password" onChange={e => setConfirmPassword(e.target.value)} />
                 </div>
-                <button className="btn btn-primary" onClick={this.onRegister}>Register</button>
+                <button className="btn btn-primary" onClick={onRegister}>Register</button>
             </form>
-        );
-    }
-
-    render = () => {
-        const registrationForm = this.getRegistrationForm();
-
-        return (<div className="row">
-            <div className="col-md-12">
-                {registrationForm}
-            </div>
-        </div>);
-    }
+        </div>
+    </div>);
 }
+
+export default Register;

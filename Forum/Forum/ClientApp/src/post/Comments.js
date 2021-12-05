@@ -39,12 +39,14 @@ export class Comments extends Component {
         this.setState({ post: data.post, likesForComments: likesForComments });
     }
 
+    // TODO
     redirectToLogin = () => {
         this.props.history.push({
             pathname: '/login'
         });
     }
 
+    // TODO
     redirectToRegistration = () => {
         this.props.history.push({
             pathname: '/register'

@@ -1,14 +1,11 @@
-﻿import React, { Component } from 'react';
+﻿import React from 'react';
+import { useHistory } from 'react-router-dom';
 import { Util } from '../util/Util';
 
-export class Login extends Component {
-    constructor(props) {
-        super(props);
+const Login = () => {
+    const history = useHistory();
 
-        this.onLogin = this.onLogin.bind(this);
-    }
-
-    onLogin = async (event) => {
+    const onLogin = async (event) => {
         event.preventDefault();
 
         const emailControl = document.getElementById('emailControl');
@@ -33,9 +30,8 @@ export class Login extends Component {
                 Util.toggleButtonsForLoggedUser();
                 Util.showSuccess('Welcome! Successfully logged in!');
 
-                this.props.history.push({
-                    pathname: '/'
-                });
+                history.push('/');
+                return;
             } else {
                 Util.showError('Ooops... Your login failed. Please, try again.');
             }
@@ -44,21 +40,21 @@ export class Login extends Component {
         }
     }
 
-    render = () => {
-        return (<div className="container">
-            <h1>Login</h1>
-            <form>
-                <div className="text-danger"></div>
-                <div className="form-group">
-                    <label>Email:</label>
-                    <input className="form-control" id="emailControl" type="email" onChange={this.onChange} />
-                </div>
-                <div className="form-group">
-                    <label>Password:</label>
-                    <input className="form-control" id="passwordControl" type="password" onChange={this.onChange} />
-                </div>
-                <button className="btn btn-primary" onClick={this.onLogin}>Login</button>
-            </form>
-        </div>);
-    }
+    return (<div className="container">
+        <h1>Login</h1>
+        <form>
+            <div className="text-danger"></div>
+            <div className="form-group">
+                <label>Email:</label>
+                <input className="form-control" id="emailControl" type="email" />
+            </div>
+            <div className="form-group">
+                <label>Password:</label>
+                <input className="form-control" id="passwordControl" type="password" />
+            </div>
+            <button className="btn btn-primary" onClick={onLogin}>Login</button>
+        </form>
+    </div>);
 }
+
+export default Login;
