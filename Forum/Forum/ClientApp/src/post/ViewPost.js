@@ -1,7 +1,7 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Comments } from './Comments';
 import Likes from './Likes';
+import Comments from './Comments';
 
 const ViewPost = () => {
     const history = useHistory();
@@ -29,9 +29,11 @@ const ViewPost = () => {
 
     const postInfo = generatePostInfo(post);
 
-    return (<div className="container">
+    return post ? (<div className="container">
         {postInfo}
         <Comments post={post} />
+    </div>) : (<div className="container">
+        {postInfo}
     </div>);
 }
 
