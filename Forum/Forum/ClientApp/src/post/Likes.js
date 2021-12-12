@@ -1,22 +1,78 @@
-﻿import React, { Component } from 'react';
+﻿import React, { useEffect, useState } from 'react';
 import { Util } from '../util/Util';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faThumbsUp } from '@fortawesome/free-solid-svg-icons'
 
-export class Likes extends Component {
-    constructor(props) {
-        super(props);
+const Likes = (props) => {
+    const [currentUser, setCurrentUser] = useState(null);
+    const [likes, setLikes] = useState(null);
+    const [isLikedByUser, setIsLikedByUser] = useState(null);
 
-        this.state = {
-            likes: null,
-            currentUser: null,
-            isLikedByUser: null
+    const getPostLikesRequest = async (postId) => {
+        try {
+            const response = await fetch(`Likes/GetPostLikes?postId=${postId}`);
+            const likes = await response.json();
+
+            return likes;
+        } catch (e) {
+            Util.showError(e);
+
+            return [];
+        }
+    };
+
+    const isPostLikedByUserRequest = async (postId, userId) => {
+        try {
+            const response = await fetch(`Likes/IsPostLikedByUser?postId=${postId}&userId=${userId}`);
+            const isLiked = await response.json();
+
+            return isLiked;
+        } catch (e) {
+            Util.showError(e);
+
+            return false;
+        }
+    };
+
+    useEffect(() => {
+        const isUserLoggedIn = async () => {
+            return await Util.isUserLoggedIn();
         };
 
-        this.onLike = this.onLike.bind(this);
-    }
+        const getCurrentUser = async () => {
+            const currentUserResult = await Util.getCurrentUser();
 
-    onLike = async (e) => {
+            setCurrentUser(currentUserResult);
+
+            if (currentUserResult && currentUserResult.userId) {
+                isPostLikedByUser(props.postId, currentUserResult.userId);
+            }
+        };
+
+        const getPostLikes = async (postId) => {
+            const likesResult = await getPostLikesRequest(postId);
+
+            setLikes(likesResult);
+        };
+
+        const isPostLikedByUser = async (postId, userId) => {
+            const isLikedByUser = await isPostLikedByUserRequest(postId, userId);
+
+            setIsLikedByUser(isLikedByUser);
+        };
+
+        const isUserLoggedInResult = isUserLoggedIn();
+
+        if (props.postId) {
+            getPostLikes(props.postId);
+        }
+
+        if (isUserLoggedInResult) {
+            getCurrentUser();
+        }
+    }, []);
+
+    const onLike = async (e) => {
         e.preventDefault();
 
         const isUserLoggedIn = await Util.isUserLoggedIn();
@@ -27,13 +83,13 @@ export class Likes extends Component {
             return;
         }
 
-        if (!this.props.postId) {
+        if (!props.postId) {
             Util.showError('Unexpected error. Post id cannot be found.');
 
             return;
         }
 
-        const model = { postId: this.props.postId, userId: this.state.currentUser.userId };
+        const model = { postId: props.postId, userId: currentUser.userId };
 
         const response = await fetch('Likes/LikePost', {
             method: 'POST',
@@ -46,26 +102,27 @@ export class Likes extends Component {
         const result = await response.json();
 
         if (result.success) {
-            const likes = await this.getPostLikes(this.props.postId);
+            const likes = await getPostLikesRequest(props.postId);
 
-            this.setState({ likes: likes, isLikedByUser: true });
+            setLikes(likes);
+            setIsLikedByUser(true);
         }
 
         if (result.error) {
             Util.showError(result.error);
         }
-    }
+    };
 
-    onUnlike = async (e) => {
+    const onUnlike = async (e) => {
         e.preventDefault();
 
-        if (!this.props.postId) {
+        if (!props.postId) {
             Util.showError('Unexpected error. Post id cannot be found.');
 
             return;
         }
 
-        const model = { postId: this.props.postId, userId: this.state.currentUser.userId };
+        const model = { postId: props.postId, userId: currentUser.userId };
 
         const response = await fetch('Likes/UnlikePost', {
             method: 'DELETE',
@@ -78,86 +135,40 @@ export class Likes extends Component {
         const result = await response.json();
 
         if (result.success) {
-            const likes = await this.getPostLikes(this.props.postId);
+            const likes = await getPostLikesRequest(props.postId);
 
-            this.setState({ likes: likes, isLikedByUser: false });
+            setLikes(likes);
+            setIsLikedByUser(false);
         }
 
         if (result.error) {
             Util.showError(result.error);
         }
-    }
+    };
 
-    componentDidMount = async () => {
-        const isUserLoggedIn = await Util.isUserLoggedIn();
-
-        if (isUserLoggedIn) {
-            const currentUser = await Util.getCurrentUser();
-            let isLikedByUser = false;
-
-            if (isUserLoggedIn && this.props.postId) {
-                isLikedByUser = await this.isPostLikedByUser(this.props.postId, currentUser.userId);
-            }
-
-            this.setState({ currentUser: currentUser, isLikedByUser: isLikedByUser });
-        }
-
-        if (this.props.postId) {
-            const likes = await this.getPostLikes(this.props.postId);
-
-            this.setState({ likes: likes });
-        }
-    }
-
-    getPostLikes = async (postId) => {
-        try {
-            const response = await fetch(`Likes/GetPostLikes?postId=${postId}`);
-            const likes = await response.json();
-
-            return likes;
-        } catch (e) {
-            Util.showError(e);
-
-            return [];
-        }
-    }
-
-    isPostLikedByUser = async (postId, userId) => {
-        try {
-            const response = await fetch(`Likes/IsPostLikedByUser?postId=${postId}&userId=${userId}`);
-            const isLiked = await response.json();
-
-            return isLiked;
-        } catch (e) {
-            Util.showError(e);
-
-            return false;
-        }
-    }
-
-    generateLikeSection = () => {
-        if (!this.state.likes) {
+    const generateLikeSection = () => {
+        if (!likes) {
             return 'Generating likes section...';
         }
 
-        if (!this.state.currentUser) {
-            return (<div><p>Total likes: {this.state.likes.length}</p>
-                <p><button onClick={this.onLike} className="btn btn-primary">Like <FontAwesomeIcon icon={faThumbsUp} /></button></p>
+        if (!currentUser || !currentUser.userId) {
+            return (<div><p>Total likes: {likes.length}</p>
+                <p><button onClick={onLike} className="btn btn-primary">Like <FontAwesomeIcon icon={faThumbsUp} /></button></p>
             </div>);
         }
 
-        const likeButton = this.state.isLikedByUser ? <button onClick={this.onUnlike} className="btn btn-secondary">Liked <FontAwesomeIcon icon={faThumbsUp} /></button> : <button onClick={this.onLike} className="btn btn-primary">Like <FontAwesomeIcon icon={faThumbsUp} /></button>;
+        const likeButton = isLikedByUser ? <button onClick={onUnlike} className="btn btn-secondary">Liked <FontAwesomeIcon icon={faThumbsUp} /></button> : <button onClick={onLike} className="btn btn-primary">Like <FontAwesomeIcon icon={faThumbsUp} /></button>;
 
-        return (<div><p>Total likes: {this.state.likes.length}</p>
+        return (<div><p>Total likes: {likes.length}</p>
             <p>{likeButton}</p>
         </div>);
-    }
+    };
 
-    render = () => {
-        const likesSection = this.generateLikeSection();
+    const likesSection = generateLikeSection();
 
-        return (<div className="container">
-            {likesSection}
-        </div>);
-    }
-}
+    return (<div className="container">
+        {likesSection}
+    </div>);
+};
+
+export default Likes;

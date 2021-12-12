@@ -1,7 +1,7 @@
 ﻿import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Likes } from './Likes';
 import { Comments } from './Comments';
+import Likes from './Likes';
 
 const ViewPost = () => {
     const history = useHistory();
